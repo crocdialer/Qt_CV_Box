@@ -71,17 +71,19 @@
     <addaction name="separator"/>
     <addaction name="m_actionShowControl"/>
    </widget>
-   <widget class="QMenu" name="menuCCF">
+   <widget class="QMenu" name="menuProcessing">
     <property name="title">
-     <string>CCF</string>
+     <string>Processing</string>
     </property>
-    <addaction name="actionCCF_info"/>
+    <addaction name="m_actionProcDisable"/>
+    <addaction name="separator"/>
+    <addaction name="m_actionProcInfo"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSequence"/>
    <addaction name="menuCamera"/>
    <addaction name="menuView"/>
-   <addaction name="menuCCF"/>
+   <addaction name="menuProcessing"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen_Image">
@@ -161,6 +163,16 @@
   <action name="actionKinect">
    <property name="text">
     <string>kinect</string>
+   </property>
+  </action>
+  <action name="m_actionProcDisable">
+   <property name="text">
+    <string>disable</string>
+   </property>
+  </action>
+  <action name="m_actionProcInfo">
+   <property name="text">
+    <string>info</string>
    </property>
   </action>
  </widget>
