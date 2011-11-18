@@ -24,10 +24,14 @@ find_package(Qt4 REQUIRED)
 SET(QT_USE_QTOPENGL TRUE)
 SET(QT_USE_QTNETWORK TRUE)
 
-FILE(GLOB project_SOURCES src/*.c*)
-FILE(GLOB project_HEADERS src/*.h*)
+SET(SRC_DIR src)
+
+FILE(GLOB project_SOURCES ${SRC_DIR}/*.c*)
+FILE(GLOB project_HEADERS ${SRC_DIR}/*.h*)
 FILE(GLOB project_FORMS forms/*.ui)
 FILE(GLOB project_RESOURCES res/*.qrc)
+
+INCLUDE_DIRECTORIES(${SRC_DIR})
 
 #SOURCE_GROUP("Source Files" project_SOURCES)
 #SOURCE_GROUP("Header Files" project_HEADERS)

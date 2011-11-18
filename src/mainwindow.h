@@ -5,6 +5,7 @@
 #include "Singleton.h"
 #include "SetSequenceDialog.h"
 #include "JumpToDialog.h"
+#include "ProcessingDialog.h"
 #include "CVWidget.h"
 
 #include "CVThread.h"
@@ -30,7 +31,8 @@ private:
 	
 	SetSequenceDialog* m_sequenceDialog ;
 	JumpToDialog* m_jumpToDialog ;
-	
+    ProcessingDialog *m_procDialog;    
+    
 	QMenu* contextMenu;
 	QAction* currentAction;
 	

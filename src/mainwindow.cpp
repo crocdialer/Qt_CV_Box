@@ -18,9 +18,6 @@ const char* KINECT_MSG = "streaming from Kinect" ;
 
 const char* SCAN_MSG = "Scanning folders..." ;
 
-const char* GRID_CALIB_MSG = "Calibrate Grid" ;
-const char* GRID_CALIB_DONE_MSG = "Done Calibrating" ;
-
 const char* IDLE_MSG = "Idle" ;
 
 bool overlay = false;
@@ -59,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
 	
 	m_sequenceDialog = new SetSequenceDialog(this) ;
 	m_jumpToDialog = new JumpToDialog(this) ;
+   	m_procDialog = new ProcessingDialog(this) ;
 	
 	//connect signals/slots
 	connect(ui->actionOpen_Image, SIGNAL(triggered()), this, SLOT(open()));
@@ -70,6 +68,10 @@ MainWindow::MainWindow(QWidget *parent)
 	
 	// show "transport controls" dialog
 	connect(ui->m_actionShowControl, SIGNAL(triggered()), m_jumpToDialog, SLOT(show()),
+			Qt::QueuedConnection);
+    
+    // show processing dialog
+	connect(ui->m_actionProcInfo, SIGNAL(triggered()), m_procDialog, SLOT(show()),
 			Qt::QueuedConnection);
 	
 	connect(ui->action_VideoFile, SIGNAL(triggered()), this, SLOT(openVideo()));

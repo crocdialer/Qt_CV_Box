@@ -27,22 +27,14 @@ void ProcessingDialog::onSliderMove()
 void ProcessingDialog::onSliderPress()
 {
 	m_blockSlider = true ;
-	updateLabels(ui->m_slider->value());
+	//updateLabels(ui->m_slider->value());
 }
 
 void ProcessingDialog::onSliderRelease()
 {
 	m_blockSlider = false ;
 	
-	MainWindow* mainWindow = (MainWindow*)parent() ;
-	
-	mainWindow->onIndexChange(ui->m_slider->value());
-}
-
-void ProcessingDialog::updateLabels(const int& i)
-{
-	MainWindow* mainWindow = (MainWindow*)parent() ;
-	CVThread* cvt = mainWindow->getImgWidget()->getCVThread().get();
+	//MainWindow* mainWindow = (MainWindow*)parent() ;
 	
 }
 
