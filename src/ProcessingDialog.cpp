@@ -4,24 +4,42 @@
 #include "mainwindow.h"
 #include <QtGui>
 
+using namespace std;
+using namespace boost;
+
 ProcessingDialog::ProcessingDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ProcessingDialog),
-	m_blockSlider(false)
+	m_blockSlider(false),
+    m_procThread(NULL)
 {
     ui->setupUi(this);
+    
+    connect(ui->m_blendSlider, SIGNAL(sliderMoved(int)), this, SLOT(onSliderMove()));
+	connect(ui->m_blendSlider, SIGNAL(sliderPressed()), this, SLOT(onSliderPress()));
 	
-	}
+	connect(ui->m_blendSlider, SIGNAL(sliderReleased()), this, SLOT(onSliderRelease()));
+	
+}
 
 ProcessingDialog::~ProcessingDialog()
 {
     delete ui;
 }
 
+void ProcessingDialog::setProcessingThread(shared_ptr<CVThread> theThread)
+{
+    if(CCFThread* thr=static_cast<CCFThread*>(theThread.get()))
+        m_procThread = thr;
+    
+    ui->m_inputImg->setCVThread(theThread);
+    //ui->m_procImg->setCVThread(theThread);
+}
 
 void ProcessingDialog::onSliderMove()
 {
-	
+    float frac = ui->m_blendSlider->value()/(float)    ui->m_blendSlider->maximum();
+	m_procThread->getActiveTask()->setBlendValue(frac);
 }
 
 void ProcessingDialog::onSliderPress()

@@ -89,8 +89,6 @@ cv::Mat TaskSalience::doProcessing(const cv::Mat &inFrame)
     
     resize(outMat,outMat,inFrame.size(),CV_INTER_LINEAR);
     
-    addWeighted(inFrame, .4, outMat, .6, 0, outMat);
-    
     return outMat;
 };
 

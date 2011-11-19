@@ -2,6 +2,8 @@
 #define ProcessingDialog_H
 
 #include <QDialog>
+#include "CCFThread.h"
+#include "boost/weak_ptr.hpp"
 
 namespace Ui 
 {
@@ -16,6 +18,10 @@ private:
     Ui::ProcessingDialog *ui;
 	
 	bool m_blockSlider;
+    
+    boost::shared_ptr<CVThread> m_cvThread;
+    
+    CCFThread *m_procThread;
 	
 public slots:
 	
@@ -29,6 +35,10 @@ public:
 	
 	void keyPressEvent(QKeyEvent* event);
 	void keyReleaseEvent(QKeyEvent* event);
+    
+    void setProcessingThread(boost::shared_ptr<CVThread> theThread);
+    
+    boost::shared_ptr<CVThread> getProcessingThread(){return m_cvThread;};
 
 protected:
     void changeEvent(QEvent *e);

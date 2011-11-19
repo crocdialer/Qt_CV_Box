@@ -2,8 +2,9 @@
 #define CCFTHREAD_H
 
 #include "CVThread.h"
+#include "CVTask.h"
 
-class CVTask;
+//class CVTask;
 
 class CCFThread : public CVThread
 {
@@ -22,6 +23,8 @@ private:
 
 	typedef std::list<boost::shared_ptr<CVTask> > TaskList;
     
+    typedef boost::shared_ptr<CVTask> TaskPtr;
+    
     TaskList m_cvTasks;
     vector<Mat> processTasks(const Mat &img,const TaskList &tasks);
     
@@ -34,6 +37,8 @@ public:
 	
 	void addProcessingTask(CVTask *task);
     void addProcessingTask(const boost::shared_ptr<CVTask> &task);
+    
+    TaskPtr getActiveTask(){return m_cvTasks.front();};
 
 };
 
