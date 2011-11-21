@@ -330,7 +330,7 @@ bool AxisCamera::cgiMJPEGRequest( const std::string& userParameters )
 	request += "\r\n";
 	
 	//TODO: tesing only -> remove
-	//printf("request: %s\n",request.c_str());
+	printf("request: %s\n",request.c_str());
 	
 	// send request to camera
 	if ( !sendRequest( request ) )
