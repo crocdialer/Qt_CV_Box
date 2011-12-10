@@ -21,9 +21,9 @@ private:
     
     cv::Mat doProcessing(const FrameBundle &bundle) ;
 
-	typedef std::list<boost::shared_ptr<CVTask> > TaskList;
-    
     typedef boost::shared_ptr<CVTask> TaskPtr;
+    
+	typedef std::list<TaskPtr> TaskList;
     
     TaskList m_cvTasks;
     vector<Mat> processTasks(const Mat &img,const TaskList &tasks);
@@ -36,7 +36,7 @@ public:
 	~CCFThread();
 	
 	void addProcessingTask(CVTask *task);
-    void addProcessingTask(const boost::shared_ptr<CVTask> &task);
+    void addProcessingTask(const TaskPtr &task);
     
     TaskPtr getActiveTask(){return m_cvTasks.front();};
 

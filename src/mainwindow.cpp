@@ -94,6 +94,9 @@ MainWindow::MainWindow(QWidget *parent)
 	
 	// update when our CVThread finishes execution (eg. display idle msg)
 	connect(m_cvThread.get(), SIGNAL(finished()), this, SLOT(onCvThreadFinished()),Qt::QueuedConnection);
+    
+    // update when our CVThread finishes execution (eg. display idle msg)
+	connect(ui->m_actionProcDisable, SIGNAL(triggered()), this, SLOT(toggleProcessing()));
 	
 	// create rightclick contextmenu
 	createContextMenu();
@@ -194,6 +197,14 @@ void MainWindow::togglePlayPause()
 	
 	m_cvThread->playPause();
 	
+}
+
+void MainWindow::toggleProcessing()
+{
+    bool willBeActive = !m_cvThread->hasProcessing();
+    m_cvThread->setDoProcessing(willBeActive);
+    
+    ui->m_actionProcDisable->setText(willBeActive? "disable":"enable");
 }
 
 void MainWindow::onCvThreadFinished()

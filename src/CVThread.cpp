@@ -277,9 +277,8 @@ void CVThread::streamKinect(bool b)
         m_kinectDevice = &(m_freenect->createDevice<KinectDevice>(0));
         
         
-        setKinectUseIR(m_kinectUseIR);
-        //m_kinectDevice->startVideo();
-        
+        //setKinectUseIR(m_kinectUseIR);
+        m_kinectDevice->startVideo();
         m_kinectDevice->startDepth();
         
         m_streamType = STREAM_KINECT;
@@ -289,7 +288,6 @@ void CVThread::streamKinect(bool b)
     {
         
         m_freenect.reset();
-        //m_freenect = shared_ptr<Freenect::Freenect>(); 
         m_kinectDevice=NULL;
         
         this->stop();
@@ -378,19 +376,7 @@ bool CVThread::grabNextFrame()
         case STREAM_KINECT:
 			
 			m_kinectDevice->getVideo(m_frames.m_inFrame,m_kinectUseIR);
-            m_kinectDevice->getDepth(m_frames.m_depthMap);
-            
-            
-            //double minV,maxV;
-            //minMaxLoc(m_frames.m_depthMap, &minV, &maxV);
-           
-         
-            //m_frames.m_depthMap.convertTo(m_frames.m_depthMap,CV_8UC1,255.0/2048.0);
-            
-            //m_frames.m_depthMap = CVTask::colorOutput(m_frames.m_depthMap);
-           
-            
-            //bitwise_not(m_frames.m_depthMap, m_frames.m_depthMap);
+            m_kinectDevice->getDepth(m_frames.m_depthMap,m_frames.m_inFrame);
             
 			break ;
             

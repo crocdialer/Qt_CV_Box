@@ -39,10 +39,10 @@ Mat CCFThread::doProcessing(const FrameBundle& bundle)
 
 void CCFThread::addProcessingTask(CVTask *task)
 {
-    addProcessingTask(shared_ptr<CVTask>(task));
+    addProcessingTask(TaskPtr(task));
 }
 
-void CCFThread::addProcessingTask(const shared_ptr<CVTask> &task)
+void CCFThread::addProcessingTask(const TaskPtr &task)
 {
     m_cvTasks.push_back(task);
 }

@@ -85,6 +85,8 @@ public:
 
 	void togglePlayPause();
     
+    void toggleProcessing();
+    
     void toggleFullscreen(){isFullScreen() ? showNormal() : showFullScreen() ;};
 	
 	void handleFileScan(const bool& done);
