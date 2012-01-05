@@ -18,9 +18,6 @@ const char* KINECT_MSG = "streaming from Kinect" ;
 
 const char* SCAN_MSG = "Scanning folders..." ;
 
-const char* GRID_CALIB_MSG = "Calibrate Grid" ;
-const char* GRID_CALIB_DONE_MSG = "Done Calibrating" ;
-
 const char* IDLE_MSG = "Idle" ;
 
 bool overlay = false;
@@ -33,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
 	
     ui->setupUi(this);
-	
+    
 	// init imageWidget and attach a CVThread to it
     imgWidget = new CVWidget();
 	setCentralWidget(imgWidget);
@@ -41,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 	//create new CVThread and pass it to our imgWidget
     m_cvThread = shared_ptr<CVThread>(new CCFThread());
+    
+//    shared_ptr<CCFThread> bla = m_cvThread;
     
 	imgWidget->setCVThread(m_cvThread);
 	imgWidget->setDrawFPS(true);
@@ -59,7 +58,9 @@ MainWindow::MainWindow(QWidget *parent)
 	
 	m_sequenceDialog = new SetSequenceDialog(this) ;
 	m_jumpToDialog = new JumpToDialog(this) ;
-	
+   	m_procDialog = new ProcessingDialog(this) ;
+	m_procDialog->setProcessingThread(m_cvThread);
+    
 	//connect signals/slots
 	connect(ui->actionOpen_Image, SIGNAL(triggered()), this, SLOT(open()));
 	connect(ui->actionSave_as, SIGNAL(triggered()), this, SLOT(save()));
@@ -70,6 +71,10 @@ MainWindow::MainWindow(QWidget *parent)
 	
 	// show "transport controls" dialog
 	connect(ui->m_actionShowControl, SIGNAL(triggered()), m_jumpToDialog, SLOT(show()),
+			Qt::QueuedConnection);
+    
+    // show processing dialog
+	connect(ui->m_actionProcInfo, SIGNAL(triggered()), m_procDialog, SLOT(show()),
 			Qt::QueuedConnection);
 	
 	connect(ui->action_VideoFile, SIGNAL(triggered()), this, SLOT(openVideo()));
@@ -89,6 +94,9 @@ MainWindow::MainWindow(QWidget *parent)
 	
 	// update when our CVThread finishes execution (eg. display idle msg)
 	connect(m_cvThread.get(), SIGNAL(finished()), this, SLOT(onCvThreadFinished()),Qt::QueuedConnection);
+    
+    // update when our CVThread finishes execution (eg. display idle msg)
+	connect(ui->m_actionProcDisable, SIGNAL(triggered()), this, SLOT(toggleProcessing()));
 	
 	// create rightclick contextmenu
 	createContextMenu();
@@ -101,12 +109,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {	
-	//delete imgWidget;
-	
-	
 	delete contextMenu;
 	delete m_sequenceDialog;
 	delete m_jumpToDialog;
+    delete m_procDialog;
 	delete ui;
 	
 	delete m_stopAction;
@@ -191,6 +197,14 @@ void MainWindow::togglePlayPause()
 	
 	m_cvThread->playPause();
 	
+}
+
+void MainWindow::toggleProcessing()
+{
+    bool willBeActive = !m_cvThread->hasProcessing();
+    m_cvThread->setDoProcessing(willBeActive);
+    
+    ui->m_actionProcDisable->setText(willBeActive? "disable":"enable");
 }
 
 void MainWindow::onCvThreadFinished()

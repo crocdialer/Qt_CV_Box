@@ -12,17 +12,27 @@ class CVTask
 {
 private:
     
+    float m_blendValue;
+    
     cv::Mat m_lastResult;
     
     virtual cv::Mat doProcessing(const cv::Mat &inFrame) = 0;
     
 public:
-    CVTask(){};
+    CVTask():m_blendValue(.55){};
     virtual ~CVTask(){};
     
-    void process(const cv::Mat &inFrame){m_lastResult = doProcessing(inFrame);} ;
+    void process(const cv::Mat &inFrame)
+    {
+        addWeighted(inFrame, (1-m_blendValue), doProcessing(inFrame),
+                    m_blendValue, 0, m_lastResult);
+        
+        //m_lastResult = doProcessing(inFrame);
+    } ;
     
     const cv::Mat& getResult() const {return m_lastResult;};
+    
+    void setBlendValue(float v){m_blendValue=v;};
     
     static Mat colorOutput(const Mat& confMap, const Colormap &cm = Colormap(), const Size& s=Size());
 };
