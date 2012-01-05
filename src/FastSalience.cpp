@@ -99,7 +99,7 @@ void FastSalience::init(int numtemporal, int numspatial, float firsttau, int fir
 	rad = 2*rad+1; 
 	
 	int maxSpScale= rad.at<double>(0,nspatial); 
-	channelFilter = OpenCV2BoxFilter::OpenCV2BoxFilter(maxSpScale/2, SAL_FILTER_TYPE); 	
+	channelFilter = OpenCV2BoxFilter(maxSpScale/2, SAL_FILTER_TYPE); 	
 	
 	redBoxConvolutionAtScale.resize(nspatial+1);
 	greenBoxConvolutionAtScale.resize(nspatial+1);
