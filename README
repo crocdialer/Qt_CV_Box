@@ -1,0 +1,3 @@
+small crossplatform application using Qt as App-Framework,
+OpenGL for Rendering and OpenCV for Image/VideoIO.
+Can be built using Cmake.
