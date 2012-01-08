@@ -1,17 +1,16 @@
 #ifndef THREADSAFEQUEUE_H
 #define THREADSAFEQUEUE_H
 
-#include <QThread>
-#include <QMutex>
-#include <QQueue>
+#include <deque>
+#include <boost/thread/mutex.hpp>
 
 template<class T> class ThreadSafeQueue
 {
 	
 private:
 	
-	QQueue<T> m_queue;
-	QMutex m_mutex;
+    std::deque<T> m_queue;
+    boost::mutex m_mutex;
 	int m_max;
 	
 public:
@@ -21,16 +20,15 @@ public:
 	{
 	}
 	
-	~ThreadSafeQueue()
+	virtual ~ThreadSafeQueue()
 	{
 		clear();
 	}
 	
 	inline uint count() 
 	{
-		m_mutex.lock();
-		int count = m_queue.count();
-		m_mutex.unlock();
+		boost::mutex::scoped_lock lock(m_mutex);
+		int count = m_queue.size();
 		return count;
 	}
 	
@@ -39,39 +37,36 @@ public:
 		if (-1 == m_max)
 			return false;
 		
-		m_mutex.lock();
-		int count = m_queue.count();
-		m_mutex.unlock();
+        boost::mutex::scoped_lock lock(m_mutex);
+		int count = m_queue.size();
 		return count >= m_max;
 	}
 	
 	inline bool isEmpty() 
 	{
-		m_mutex.lock();
+		boost::mutex::scoped_lock lock(m_mutex);
 		bool empty = m_queue.isEmpty();
-		m_mutex.unlock();
 		return empty;
 	}
 	
 	inline void clear()
 	{
-		m_mutex.lock();
+        boost::mutex::scoped_lock lock(m_mutex);
 		m_queue.clear();
-		m_mutex.unlock();
 	}
 	
 	inline void push(const T& t)
 	{
-		m_mutex.lock();
-		m_queue.enqueue(t);
-		m_mutex.unlock();
+		boost::mutex::scoped_lock lock(m_mutex);
+		m_queue.push_back(t);
 	}
 	
 	inline T pop()
 	{
-		m_mutex.lock();
-		T i = m_queue.dequeue();
-		m_mutex.unlock();
+		boost::mutex::scoped_lock lock(m_mutex);
+		T i = m_queue.front();
+        m_queue.pop_front();
+        
 		return i;
 	}
 	
