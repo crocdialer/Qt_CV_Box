@@ -302,12 +302,21 @@ Colormap::Colormap(const ColorMapType& mt)
 	
 	for (int i=0; i< 64; i++) 
 	{
+        Vec3f low = Vec3f(floor(colorMap[3*i+2]*255 + 0.5),
+                          floor(colorMap[3*i+1]*255 + 0.5),
+                          floor(colorMap[3*i]*255 + 0.5));
+        
+        Vec3f diff(Vec3f::all(0.f));
+        if(i<63)
+            diff = (Vec3f(floor(colorMap[3*i+2]*255 + 0.5),
+                          floor(colorMap[3*i+1]*255 + 0.5),
+                          floor(colorMap[3*i]*255 + 0.5))
+            - low) / 4.0;
+        
 		for (int j=0; j<4; j++) 
 		{
 			//switch RGB -> BGR and build 256 value-combinedLUT
-			m_byteValues[4*i+j] = Vec3b(floor(colorMap[3*i+2]*255 + 0.5),
-										floor(colorMap[3*i+1]*255 + 0.5),
-										floor(colorMap[3*i]*255 + 0.5));
+			m_byteValues[4*i+j] = Vec3b(low + j*diff);
 		}
 	}
 	
