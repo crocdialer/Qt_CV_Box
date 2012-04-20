@@ -23,6 +23,10 @@ int main(int argc, char *argv[])
 	
 	w.setAnimated(true);
 	
+//    QMainWindow w2;
+//    w2.resize(640, 480);
+//    w2.show();
+    
 	/*
 	QIcon icon;
 	icon.addFile(QString::fromUtf8(":/Icons/persona.png"), QSize(), QIcon::Normal, QIcon::On);
