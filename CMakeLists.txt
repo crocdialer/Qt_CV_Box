@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 
-project (helloQtCmake)
+project (PersonaBoy)
 
 ##### OPENGL
 find_package(OpenGL REQUIRED)
@@ -38,7 +38,16 @@ INCLUDE_DIRECTORIES(${SRC_DIR})
 #SOURCE_GROUP("UI Forms" project_FORMS)
 #SOURCE_GROUP("Resources" project_RESOURCES)
 
-QT4_WRAP_CPP(project_HEADERS_MOC ${project_HEADERS})
+SET(HEADERS_HAVING_Q_OBJECT)
+
+foreach(header ${project_HEADERS})
+    file(STRINGS "${header}" lines REGEX "Q_OBJECT")
+    if(lines)
+        list(APPEND HEADERS_HAVING_Q_OBJECT "${header}")
+    endif()
+endforeach()
+
+QT4_WRAP_CPP(project_HEADERS_MOC ${HEADERS_HAVING_Q_OBJECT})
 QT4_WRAP_UI(project_FORMS_HEADERS ${project_FORMS})
 QT4_ADD_RESOURCES(project_RESOURCES_RCC ${project_RESOURCES})
 
