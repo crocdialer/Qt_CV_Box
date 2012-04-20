@@ -65,8 +65,8 @@ public:
    	void loadFrameFromIpCamera();
 
 	void playPause();
-	void jumpToFrame(const int& index);
-	void skipFrames(const int& num);
+	void jumpToFrame(int index);
+	void skipFrames(int num);
 	
 	void stop(){stopped=true;};
     
@@ -91,7 +91,7 @@ public:
 	bool hasProcessing(){return m_doProcessing;};
 	
 	int getCurrentIndex();
-	inline const int& getNumFrames(){return m_numVideoFrames;};
+	inline int getNumFrames(){return m_numVideoFrames;};
 	inline const std::string& getVideoPath(){return m_videoPath;};
 	
     double getLastGrabTime();
@@ -131,8 +131,8 @@ private:
 	int m_currentFileIndex;
 	unsigned int m_sequenceStep;
 	
-	volatile bool stopped;
-	volatile bool m_doProcessing;
+    volatile bool stopped;
+    volatile bool m_doProcessing;
     
 	// fetch next frame, depending on current m_streamType
 	bool grabNextFrame();

@@ -107,7 +107,8 @@ void CVWidget::resizeGL(int newWidth, int newHeight)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
-	gluOrtho2D(0, 1.0, 0, 1.0);
+	glOrtho(0, 1.0, 0, 1.0, 0.0, 1.0);
+    
 	//gluOrtho2D(0, newWidth, 0, newHeight);
 	
 	glMatrixMode(GL_MODELVIEW);

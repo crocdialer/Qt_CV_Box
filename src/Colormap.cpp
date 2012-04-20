@@ -311,7 +311,7 @@ Colormap::Colormap(const ColorMapType& mt)
             diff = (Vec3f(floor(colorMap[3*i+2]*255 + 0.5),
                           floor(colorMap[3*i+1]*255 + 0.5),
                           floor(colorMap[3*i]*255 + 0.5))
-            - low) / 4.0;
+            - low) * .25f;
         
 		for (int j=0; j<4; j++) 
 		{

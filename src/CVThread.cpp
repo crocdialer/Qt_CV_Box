@@ -92,13 +92,13 @@ bool CVThread::saveCurrentFrame(const std::string& savePath)
 	
 }
 
-void CVThread::skipFrames(const int& num)
+void CVThread::skipFrames(int num)
 {	
 	jumpToFrame( m_currentFileIndex + num );
 
 }
 
-void CVThread::jumpToFrame(const int& newIndex)
+void CVThread::jumpToFrame(int newIndex)
 {	
 	m_currentFileIndex = newIndex < 0 ? 0 : newIndex;
 	
