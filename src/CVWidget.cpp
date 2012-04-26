@@ -10,7 +10,6 @@ list<QGLWidget*> CVWidget::ms_shares;
 
 
 CVWidget::CVWidget(QWidget *prnt,QGLWidget *shr):QGLWidget(prnt,shr),
-m_type(WIDGET_RESULT),
 m_GLTextureIndex(0),m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
 {	
 	// static shares, to have only one Gl-context for all widgets
@@ -199,8 +198,6 @@ void CVWidget::timerEvent(QTimerEvent* e)
 
 void CVWidget::drawTexture()
 {	
-	
-	
 	glBindTexture(GL_TEXTURE_2D, m_GLTextureIndex);
 	
 	//draw renderTexture
@@ -210,33 +207,15 @@ void CVWidget::drawTexture()
 
 void CVWidget::updateImage()
 {	
-	Mat img;
     const CVThread::FrameBundle &bundle = m_cvThread->getFrameBundle();
-    
-    switch (m_type) {
-        case WIDGET_INPUT:
-            img = bundle.m_inFrame;
-            break;
-        case WIDGET_DEPTH:
-            img = bundle.m_depthMap;
-            break;
-        case WIDGET_RESULT:
-            img = bundle.m_result;
-            break;
-            
-        default:
-            break;
-    }
-    
-    
-	createGLTexture(img);
+
+	createGLTexture(bundle.m_result);
 	
 	updateGL();
 }
 
 void CVWidget::createGLTexture(const Mat& img)
 {	
-	//m_image=img;
     
 	GLenum format=0,internalFormat=0;
 	

@@ -2,7 +2,6 @@ cmake_minimum_required (VERSION 2.6)
 
 project (PersonaBoy)
 
-SET(CMAKE_TOOLCHAIN_FILE "c++0x.toolchain.cmake") 
 ##### OPENGL
 find_package(OpenGL REQUIRED)
 INCLUDE_DIRECTORIES(${OpenGL_INCLUDE_DIRS})

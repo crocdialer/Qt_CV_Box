@@ -4,15 +4,15 @@
 #include <QGLWidget>
 #include <QMenu>
 #include <QMouseEvent>
+
 #include "CVThread.h"
+#include "Texture.h"
 
 class CVWidget : public QGLWidget
 {
     Q_OBJECT
 	
 public:
-    
-    enum WidgetType{WIDGET_INPUT,WIDGET_DEPTH,WIDGET_RESULT};
     
     CVWidget(QWidget *parent=NULL,QGLWidget *shardWdgt=ms_shares.empty() ? NULL:ms_shares.front());
     virtual ~CVWidget();
@@ -28,10 +28,6 @@ public:
 	void setCVThread(const CVThreadPtr& cvt);
 	CVThreadPtr getCVThread() const {return m_cvThread;};
     
-    WidgetType getWidgetType() const {return m_type;};
-    void setWidgetType(WidgetType t){m_type=t;};
-    
-	
 public slots:
 	
 	virtual void updateImage();
@@ -41,18 +37,18 @@ public slots:
 private:
 	
     static std::list<QGLWidget*> ms_shares;
-    
-    GLfloat modelViewMatrix[16];
 	
     QFont font;
     int pressedButton;
 	
 	//-- OpenCV
-	WidgetType m_type;
     
 	//-- Thread for processing CV-Tasks in the background
     CVThreadPtr m_cvThread;
 	
+    
+    gl::Texture m_texture;
+    
 	//-- OpenGL texture index
 	GLuint m_GLTextureIndex ;
 	
