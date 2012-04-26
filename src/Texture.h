@@ -27,8 +27,6 @@
 #include "Eigen/Dense"
 #include <boost/shared_ptr.hpp>
 
-#include <vector>
-
 using boost::shared_ptr;
 //using std::shared_ptr
 
@@ -54,7 +52,7 @@ namespace gl
         Texture( GLenum aTarget, GLuint aTextureID, int aWidth, int aHeight, bool aDoNotDispose );
         
         //! Determines whether the Texture will call glDeleteTextures() to free the associated texture objects on destruction
-        void setDoNotDispose( bool aDoNotDispose = true ) { m_Obj->m_DoNotDispose = aDoNotDispose; }
+        void setDoNotDispose( bool aDoNotDispose = true );
         
         //! Installs an optional callback which fires when the texture is destroyed. Useful for integrating with external APIs
         void setDeallocator( void(*aDeallocatorFunc)( void * ), void *aDeallocatorRefcon );
@@ -81,6 +79,10 @@ namespace gl
         /** Designed to accommodate texture where not all pixels are "clean", meaning the maximum texture coordinate value may not be 1.0 (or the texture's width in \c GL_TEXTURE_RECTANGLE_ARB) **/
         void setCleanTexCoords( float maxU, float maxV );
         
+        void setTextureMatrix( const Eigen::Matrix4f &theMatrix );
+        
+        const Eigen::Matrix4f getTextureMatrix() const;
+        
         //	//! Replaces the pixels of a texture with contents of \a surface. Expects \a surface's size to match the Texture's.
         //	void			update( const Surface &surface );
         //	//! Replaces the pixels of a texture with contents of \a surface. Expects \a surface's size to match the Texture's.
@@ -92,6 +94,9 @@ namespace gl
         //	void			update( const Channel32f &channel );
         //	//! Replaces the pixels of a texture with contents of \a channel. Expects \a area's size to match the Texture's.
         //	void			update( const Channel8u &channel, const Area &area );
+        
+        //! Replaces the pixels of a texture with contents of \a channel.
+        void update( const unsigned char *data,GLenum format, int theWidth, int theHeight, bool flipped = false );
         
         //! the width of the texture in pixels
         GLint getWidth() const;
@@ -132,16 +137,16 @@ namespace gl
         GLint getInternalFormat() const;
         
         //! the ID number for the texture, appropriate to pass to calls like \c glBindTexture()
-        GLuint getId() const { return m_Obj->m_TextureID; }
+        GLuint getId() const;
         
         //! the target associated with texture. Typical values are \c GL_TEXTURE_2D and \c GL_TEXTURE_RECTANGLE_ARB
-        GLenum getTarget() const { return m_Obj->m_Target; }
+        GLenum getTarget() const;
         
         //!	whether the texture is flipped vertically
-        bool isFlipped() const { return m_Obj->m_Flipped; }
+        bool isFlipped() const;
         
         //!	Marks the texture as being flipped vertically or not
-        void setFlipped( bool aFlipped = true ) { m_Obj->m_Flipped = aFlipped; }
+        void setFlipped( bool aFlipped = true );
         
         /**	\brief Enables the Texture's target and binds its associated texture.
          Equivalent to calling \code glEnable( target ); glBindTexture( target, textureID ); \endcode **/
@@ -245,33 +250,14 @@ namespace gl
         void	init( const unsigned char *data, int unpackRowLength, GLenum dataFormat, GLenum type, const Format &format );	
         void	init( const float *data, GLint dataFormat, const Format &format );
         
-        struct Obj {
-            Obj() : m_Width( -1 ), m_Height( -1 ), m_CleanWidth( -1 ),
-                m_CleanHeight( -1 ), m_InternalFormat( -1 ), m_TextureID( 0 ),
-                m_Flipped( false ), m_DeallocatorFunc( 0 ) {}
-            
-            Obj( int aWidth, int aHeight ) : m_Width( aWidth ), m_Height( aHeight ),
-                m_CleanWidth( aWidth ), m_CleanHeight( aHeight ), m_InternalFormat( -1 ),
-                m_TextureID( 0 ), m_Flipped( false ), m_DeallocatorFunc( 0 )  {}
-            
-            ~Obj();
-            
-            mutable GLint	m_Width, m_Height, m_CleanWidth, m_CleanHeight;
-            float			mMaxU, mMaxV;
-            mutable GLint	m_InternalFormat;
-            GLenum			m_Target;
-            GLuint			m_TextureID;
-            bool			m_DoNotDispose;
-            bool			m_Flipped;	
-            void			(*m_DeallocatorFunc)(void *refcon);
-            void			*m_DeallocatorRefcon;			
-        };
-        shared_ptr<Obj>		m_Obj;
+        // forward declared Implementation object
+        typedef shared_ptr<struct Obj> ObjPtr;
+        ObjPtr m_Obj;
         
     public:
         //@{
         //! Emulates shared_ptr-like behavior
-        typedef shared_ptr<Obj> Texture::*unspecified_bool_type;
+        typedef ObjPtr Texture::*unspecified_bool_type;
         operator unspecified_bool_type() const { return ( m_Obj.get() == 0 ) ? 0 : &Texture::m_Obj; }
         void reset() { m_Obj.reset(); }
         //@}  

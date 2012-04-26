@@ -52,21 +52,13 @@ void CVWidget::setCVThread(const CVThreadPtr& cvt)
 
 void CVWidget::initializeGL()
 {	
-	assert(doubleBuffer());
+	if(!doubleBuffer())
+        throw runtime_error("no doublebuffering available ...");
 	
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	
-	//glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_CULL_FACE);
-	glShadeModel(GL_SMOOTH);
-	    
-	// generate texture-index for drawingTexture
-	glGenTextures(1, &m_GLTextureIndex);
-	assert(m_GLTextureIndex);
-	
-	//printf("textureIndex: %d\n",m_GLTextureIndex);
-	
+    glEnable(GL_TEXTURE_2D);
+    
 	// displaylist for our canvas
 	m_canvasList = buildCanvasList() ;
 	
@@ -106,8 +98,6 @@ void CVWidget::resizeGL(int newWidth, int newHeight)
 	glLoadIdentity();
 	
 	glOrtho(0, 1.0, 0, 1.0, 0.0, 1.0);
-    
-	//gluOrtho2D(0, newWidth, 0, newHeight);
 	
 	glMatrixMode(GL_MODELVIEW);
 }
@@ -198,7 +188,10 @@ void CVWidget::timerEvent(QTimerEvent* e)
 
 void CVWidget::drawTexture()
 {	
-	glBindTexture(GL_TEXTURE_2D, m_GLTextureIndex);
+	//glBindTexture(GL_TEXTURE_2D, m_GLTextureIndex);
+    
+    if(m_texture)
+        m_texture.bind();
 	
 	//draw renderTexture
 	glCallList(m_canvasList);
@@ -217,36 +210,42 @@ void CVWidget::updateImage()
 void CVWidget::createGLTexture(const Mat& img)
 {	
     
-	GLenum format=0,internalFormat=0;
+	GLenum format=0;
 	
 	switch(img.channels()) 
 	{
 		case 1:
-			format = internalFormat = GL_LUMINANCE;
+            format = GL_LUMINANCE;
+            
 			break;
 		case 2:
-			format = internalFormat = GL_LUMINANCE_ALPHA;
+            format = GL_LUMINANCE_ALPHA;
 			break;
 		case 3:
 			format = GL_BGR;
-			//format = GL_RGB;
-			internalFormat = GL_RGB ;
+
 			break;
 		default:
 			break;
 	}
-    // Vertical flip
-	glPushMatrix();
-    glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-	glScalef(1.f,-1.f,1.f);
+//    // Vertical flip
+//	glPushMatrix();
+//    glMatrixMode(GL_TEXTURE);
+//	glLoadIdentity();
+//	glScalef(1.f,-1.f,1.f);
+//    
+//	/* Create linear filtered Texture */
+//	glBindTexture(GL_TEXTURE_2D, m_GLTextureIndex);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+//	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, img.cols, img.rows, 0, format, GL_UNSIGNED_BYTE,img.data);
+//    
+//    glPopMatrix();
+//	glMatrixMode(GL_MODELVIEW);
     
-	/* Create linear filtered Texture */
-	glBindTexture(GL_TEXTURE_2D, m_GLTextureIndex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, img.cols, img.rows, 0, format, GL_UNSIGNED_BYTE,img.data);
+//    gl::Texture::Format texFormat;
+//    texFormat.
     
-    glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+    //m_texture = gl::Texture(img.data, format, img.cols, img.rows);
+    m_texture.update(img.data, format, img.cols, img.rows, true);
 }

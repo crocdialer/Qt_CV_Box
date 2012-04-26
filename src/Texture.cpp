@@ -24,6 +24,7 @@
 
 
 using namespace std;
+using namespace Eigen;
 
 namespace gl {
 
@@ -48,21 +49,44 @@ Texture::Format::Format()
 
 /////////////////////////////////////////////////////////////////////////////////
 // Texture::Obj
-Texture::Obj::~Obj()
-{
-	if( m_DeallocatorFunc )
-		(*m_DeallocatorFunc)( m_DeallocatorRefcon );
+    struct Obj {
+        Obj() : m_Width( -1 ), m_Height( -1 ), m_CleanWidth( -1 ),
+        m_CleanHeight( -1 ), m_InternalFormat( -1 ), m_TextureID( 0 ),
+        m_Flipped( false ), m_DeallocatorFunc( 0 ) {}
+        
+        Obj( int aWidth, int aHeight ) : m_Width( aWidth ), m_Height( aHeight ),
+        m_CleanWidth( aWidth ), m_CleanHeight( aHeight ), m_InternalFormat( -1 ),
+        m_TextureID( 0 ), m_Flipped( false ), m_DeallocatorFunc( 0 )  {}
+        
+        ~Obj()
+        {
+            if( m_DeallocatorFunc )
+                (*m_DeallocatorFunc)( m_DeallocatorRefcon );
+            
+            if( ( m_TextureID > 0 ) && ( ! m_DoNotDispose ) ) {
+                glDeleteTextures( 1, &m_TextureID );
+            }
+        }
 
-	if( ( m_TextureID > 0 ) && ( ! m_DoNotDispose ) ) {
-		glDeleteTextures( 1, &m_TextureID );
-	}
-}
-
+        
+        mutable GLint	m_Width, m_Height, m_CleanWidth, m_CleanHeight;
+        float			mMaxU, mMaxV;
+        mutable GLint	m_InternalFormat;
+        GLenum			m_Target;
+        GLuint			m_TextureID;
+        Eigen::Matrix4f m_textureMatrix;
+        
+        bool			m_DoNotDispose;
+        bool			m_Flipped;	
+        void			(*m_DeallocatorFunc)(void *refcon);
+        void			*m_DeallocatorRefcon;			
+};
 
 /////////////////////////////////////////////////////////////////////////////////
 // Texture
+    
 Texture::Texture( int aWidth, int aHeight, Format format )
-	: m_Obj( boost::shared_ptr<Obj>( new Obj( aWidth, aHeight ) ) )
+	: m_Obj( ObjPtr( new Obj( aWidth, aHeight ) ) )
 {
 	if( format.m_InternalFormat == -1 )
 		format.m_InternalFormat = GL_RGBA;
@@ -72,7 +96,7 @@ Texture::Texture( int aWidth, int aHeight, Format format )
 }
 
 Texture::Texture( const unsigned char *data, int dataFormat, int aWidth, int aHeight, Format format )
-	: m_Obj( boost::shared_ptr<Obj>( new Obj( aWidth, aHeight ) ) )
+	: m_Obj( ObjPtr( new Obj( aWidth, aHeight ) ) )
 {
 	if( format.m_InternalFormat == -1 )
 		format.m_InternalFormat = GL_RGBA;
@@ -82,7 +106,7 @@ Texture::Texture( const unsigned char *data, int dataFormat, int aWidth, int aHe
 }	
 
 Texture::Texture( GLenum aTarget, GLuint aTextureID, int aWidth, int aHeight, bool aDoNotDispose )
-	: m_Obj( boost::shared_ptr<Obj>( new Obj ) )
+	: m_Obj( ObjPtr( new Obj ) )
 {
 	m_Obj->m_Target = aTarget;
 	m_Obj->m_TextureID = aTextureID;
@@ -102,32 +126,64 @@ Texture::Texture( GLenum aTarget, GLuint aTextureID, int aWidth, int aHeight, bo
 void Texture::init( const unsigned char *data, int unpackRowLength, GLenum dataFormat, GLenum type, const Format &format )
 {
 	m_Obj->m_DoNotDispose = false;
+    
+    if(m_Obj->m_Flipped)
+    {
+        m_Obj->m_textureMatrix = Matrix4f::Identity();
+        m_Obj->m_textureMatrix(1,1) = -1 ;
+        //mtr.col = Vector4f::Ones();
+        
+        //std::cout<<"textureMatrix: \n" <<mtr <<"\n";
+        
+//        glMatrixMode(GL_TEXTURE);
+//        glLoadMatrixf(m_Obj->m_textureMatrix.data());
+        
+//        glMatrixMode(GL_MODELVIEW);
+//        glLoadIdentity();
+        
+//        
+    }
+    
+    if(!m_Obj->m_TextureID)
+    {
+        glGenTextures( 1, &m_Obj->m_TextureID );
 
-	glGenTextures( 1, &m_Obj->m_TextureID );
-
-	glBindTexture( m_Obj->m_Target, m_Obj->m_TextureID );
-	glTexParameteri( m_Obj->m_Target, GL_TEXTURE_WRAP_S, format.m_WrapS );
-	glTexParameteri( m_Obj->m_Target, GL_TEXTURE_WRAP_T, format.m_WrapT );
-	glTexParameteri( m_Obj->m_Target, GL_TEXTURE_MIN_FILTER, format.m_MinFilter );	
-	glTexParameteri( m_Obj->m_Target, GL_TEXTURE_MAG_FILTER, format.m_MagFilter );
-	if( format.m_Mipmapping )
-		glTexParameteri( m_Obj->m_Target, GL_GENERATE_MIPMAP, GL_TRUE );
-	if( m_Obj->m_Target == GL_TEXTURE_2D ) {
-		m_Obj->mMaxU = m_Obj->mMaxV = 1.0f;
+        glBindTexture( m_Obj->m_Target, m_Obj->m_TextureID );
+        glTexParameteri( m_Obj->m_Target, GL_TEXTURE_WRAP_S, format.m_WrapS );
+        glTexParameteri( m_Obj->m_Target, GL_TEXTURE_WRAP_T, format.m_WrapT );
+        glTexParameteri( m_Obj->m_Target, GL_TEXTURE_MIN_FILTER, format.m_MinFilter );	
+        glTexParameteri( m_Obj->m_Target, GL_TEXTURE_MAG_FILTER, format.m_MagFilter );
+        
+        if( format.m_Mipmapping )
+            glTexParameteri( m_Obj->m_Target, GL_GENERATE_MIPMAP, GL_TRUE );
+        
+        if( m_Obj->m_Target == GL_TEXTURE_2D ) 
+        {
+            m_Obj->mMaxU = m_Obj->mMaxV = 1.0f;
+        }
+        else 
+        {
+            m_Obj->mMaxU = (float)m_Obj->m_Width;
+            m_Obj->mMaxV = (float)m_Obj->m_Height;
+        }
 	}
-	else {
-		m_Obj->mMaxU = (float)m_Obj->m_Width;
-		m_Obj->mMaxV = (float)m_Obj->m_Height;
-	}
-	
+    else 
+    {
+        glBindTexture( m_Obj->m_Target, m_Obj->m_TextureID );
+    }
+    
 	glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+    
 #if ! defined( CINDER_GLES )
 	glPixelStorei( GL_UNPACK_ROW_LENGTH, unpackRowLength );
 #endif
+    
 	glTexImage2D( m_Obj->m_Target, 0, m_Obj->m_InternalFormat, m_Obj->m_Width, m_Obj->m_Height, 0, dataFormat, type, data );
+    
 #if ! defined( CINDER_GLES )
 	glPixelStorei( GL_UNPACK_ROW_LENGTH, 0 );
 #endif	
+    
 }
 
 void Texture::init( const float *data, GLint dataFormat, const Format &format )
@@ -141,17 +197,22 @@ void Texture::init( const float *data, GLint dataFormat, const Format &format )
 	glTexParameteri( m_Obj->m_Target, GL_TEXTURE_WRAP_T, format.m_WrapT );
 	glTexParameteri( m_Obj->m_Target, GL_TEXTURE_MIN_FILTER, format.m_MinFilter );	
 	glTexParameteri( m_Obj->m_Target, GL_TEXTURE_MAG_FILTER, format.m_MagFilter );
-	if( format.m_Mipmapping )
+	
+    if( format.m_Mipmapping )
 		glTexParameteri( m_Obj->m_Target, GL_GENERATE_MIPMAP, GL_TRUE );
-	if( m_Obj->m_Target == GL_TEXTURE_2D ) {
+	
+    if( m_Obj->m_Target == GL_TEXTURE_2D ) 
+    {
 		m_Obj->mMaxU = m_Obj->mMaxV = 1.0f;
 	}
-	else {
+	else 
+    {
 		m_Obj->mMaxU = (float)m_Obj->m_Width;
 		m_Obj->mMaxV = (float)m_Obj->m_Height;
 	}
 	
-	if( data ) {
+	if( data ) 
+    {
 		glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 		glTexImage2D( m_Obj->m_Target, 0, m_Obj->m_InternalFormat, m_Obj->m_Width, m_Obj->m_Height, 0, dataFormat, GL_FLOAT, data );
 	}
@@ -159,6 +220,22 @@ void Texture::init( const float *data, GLint dataFormat, const Format &format )
 		glTexImage2D( m_Obj->m_Target, 0, m_Obj->m_InternalFormat, m_Obj->m_Width, m_Obj->m_Height, 0, GL_LUMINANCE, GL_FLOAT, 0 );  // init to black...
 }
 
+void Texture::update( const unsigned char *data,GLenum format, int theWidth, int theHeight, bool flipped )
+{   
+    if(!m_Obj)
+    {
+        m_Obj = ObjPtr(new Obj(theWidth, theHeight));
+        m_Obj->m_Target = GL_TEXTURE_2D;
+        m_Obj->m_InternalFormat = GL_RGBA;
+    }
+    
+    m_Obj->m_CleanWidth = m_Obj->m_Width = theWidth;
+    m_Obj->m_CleanHeight = m_Obj->m_Height = theHeight;
+    m_Obj->m_Flipped = flipped;
+    
+    init(data, 0, format, GL_UNSIGNED_BYTE, Format());
+}
+    
 bool Texture::dataFormatHasAlpha( GLint dataFormat )
 {
 	switch( dataFormat ) {
@@ -202,6 +279,43 @@ void Texture::setDeallocator( void(*aDeallocatorFunc)( void * ), void *aDealloca
 	m_Obj->m_DeallocatorRefcon = aDeallocatorRefcon;
 }
 
+void Texture::setDoNotDispose( bool aDoNotDispose ) 
+{ 
+    m_Obj->m_DoNotDispose = aDoNotDispose; 
+}
+
+void Texture::setTextureMatrix( const Eigen::Matrix4f &theMatrix )
+{
+    m_Obj->m_textureMatrix = theMatrix;
+}
+    
+const Eigen::Matrix4f Texture::getTextureMatrix() const 
+{ 
+    return m_Obj->m_textureMatrix; 
+}
+
+GLuint Texture::getId() const 
+{ 
+    return m_Obj->m_TextureID; 
+}
+
+GLenum Texture::getTarget() const 
+{ 
+    return m_Obj->m_Target; 
+}
+
+//!	whether the texture is flipped vertically
+bool Texture::isFlipped() const 
+{
+    return m_Obj->m_Flipped; 
+}
+
+//!	Marks the texture as being flipped vertically or not
+void Texture::setFlipped( bool aFlipped ) 
+{ 
+    m_Obj->m_Flipped = aFlipped; 
+}
+    
 void Texture::setWrapS( GLenum wrapS )
 {
 	glTexParameteri( m_Obj->m_Target, GL_TEXTURE_WRAP_S, wrapS );
