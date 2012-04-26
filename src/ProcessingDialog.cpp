@@ -5,7 +5,7 @@
 #include <QtGui>
 
 using namespace std;
-using namespace boost;
+//using namespace boost;
 
 ProcessingDialog::ProcessingDialog(QWidget *parent) :
     QDialog(parent),
@@ -27,7 +27,7 @@ ProcessingDialog::~ProcessingDialog()
     delete ui;
 }
 
-void ProcessingDialog::setProcessingThread(shared_ptr<CVThread> theThread)
+void ProcessingDialog::setProcessingThread(const CVThreadPtr &theThread)
 {
     if(CCFThread* thr=static_cast<CCFThread*>(theThread.get()))
         m_procThread = thr;

@@ -3,7 +3,6 @@
 
 #include <QDialog>
 #include "CCFThread.h"
-#include "boost/weak_ptr.hpp"
 
 namespace Ui 
 {
@@ -19,7 +18,7 @@ private:
 	
 	bool m_blockSlider;
     
-    boost::shared_ptr<CVThread> m_cvThread;
+    CVThreadPtr m_cvThread;
     
     CCFThread *m_procThread;
 	
@@ -36,9 +35,9 @@ public:
 	void keyPressEvent(QKeyEvent* event);
 	void keyReleaseEvent(QKeyEvent* event);
     
-    void setProcessingThread(boost::shared_ptr<CVThread> theThread);
+    void setProcessingThread(const CVThreadPtr &theThread);
     
-    boost::shared_ptr<CVThread> getProcessingThread(){return m_cvThread;};
+    CVThreadPtr getProcessingThread(){return m_cvThread;};
 
 protected:
     void changeEvent(QEvent *e);

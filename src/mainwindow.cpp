@@ -3,10 +3,7 @@
 #include "CCFThread.h"
 #include <QtGui>
 
-//#include "boost/shared_ptr.hpp"
-
-using boost::shared_ptr;
-
+using namespace std;
 
 template<> MainWindow* Singleton<MainWindow>::ms_Singleton = 0;
 
@@ -37,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
 	imgWidget->setFocus(Qt::MouseFocusReason);
 
 	//create new CVThread and pass it to our imgWidget
-    m_cvThread = shared_ptr<CVThread>(new CCFThread());
+    m_cvThread = CVThreadPtr(new CCFThread());
     
 //    shared_ptr<CCFThread> bla = m_cvThread;
     

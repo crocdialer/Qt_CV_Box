@@ -13,7 +13,7 @@
 
 using namespace std;
 using namespace cv;
-using namespace boost;
+//using namespace boost;
 
 CVThread::CVThread():m_streamType(NO_STREAM),m_currentFileIndex(0),m_sequenceStep(1),
 stopped(true),m_kinectDevice(NULL),m_kinectUseIR(false),m_captureFPS(25.f)
@@ -273,7 +273,7 @@ void CVThread::streamKinect(bool b)
 {
     if(b)
     {
-        m_freenect = shared_ptr<Freenect::Freenect>( new Freenect::Freenect());
+        m_freenect = boost::shared_ptr<Freenect::Freenect>( new Freenect::Freenect());
         m_kinectDevice = &(m_freenect->createDevice<KinectDevice>(0));
         
         

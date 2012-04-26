@@ -5,7 +5,6 @@
 // opencv C++ interface
 using namespace cv;
 using namespace std;
-using boost::shared_ptr;
 
 list<QGLWidget*> CVWidget::ms_shares;
 
@@ -38,7 +37,7 @@ CVWidget::~CVWidget()
 	ms_shares.remove(this);
 }
 
-void CVWidget::setCVThread(const shared_ptr<CVThread>& cvt)
+void CVWidget::setCVThread(const CVThreadPtr& cvt)
 {
 	if(m_cvThread.get())
 		disconnect(m_cvThread.get(), SIGNAL(imageChanged()), this, SLOT(updateImage()) );
@@ -62,7 +61,7 @@ void CVWidget::initializeGL()
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_CULL_FACE);
 	glShadeModel(GL_SMOOTH);
-	
+	    
 	// generate texture-index for drawingTexture
 	glGenTextures(1, &m_GLTextureIndex);
 	assert(m_GLTextureIndex);

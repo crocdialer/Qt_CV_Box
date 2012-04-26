@@ -184,4 +184,6 @@ protected:
 	
 };
 
+typedef boost::shared_ptr<CVThread> CVThreadPtr;
+
 #endif // CHTHREAD_H

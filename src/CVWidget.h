@@ -5,7 +5,6 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include "CVThread.h"
-#include "boost/shared_ptr.hpp"
 
 class CVWidget : public QGLWidget
 {
@@ -26,8 +25,8 @@ public:
 	GLuint getGLTextureIndex() const {return m_GLTextureIndex;};
 	void setGLTextureIndex(GLuint i){m_GLTextureIndex=i;};
 	
-	void setCVThread(const boost::shared_ptr<CVThread>& cvt);
-	boost::shared_ptr<CVThread> getCVThread() const {return m_cvThread;};
+	void setCVThread(const CVThreadPtr& cvt);
+	CVThreadPtr getCVThread() const {return m_cvThread;};
     
     WidgetType getWidgetType() const {return m_type;};
     void setWidgetType(WidgetType t){m_type=t;};
@@ -52,7 +51,7 @@ private:
 	WidgetType m_type;
     
 	//-- Thread for processing CV-Tasks in the background
-    boost::shared_ptr<CVThread> m_cvThread;
+    CVThreadPtr m_cvThread;
 	
 	//-- OpenGL texture index
 	GLuint m_GLTextureIndex ;

@@ -47,7 +47,7 @@ private:
     
     void changeEvent(QEvent *e);
     
-    boost::shared_ptr<CVThread> m_cvThread;
+    CVThreadPtr m_cvThread;
 	
 public:
     MainWindow(QWidget *parent = 0);
