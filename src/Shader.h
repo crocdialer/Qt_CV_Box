@@ -23,10 +23,6 @@
 #pragma once
 
 #include <string>
-//#include <sstream>
-//#include <iostream>
-//#include <fstream>
-
 #include <exception>
 
 
@@ -45,27 +41,36 @@ class Shader {
   public: 
 	Shader() {}
     
-	Shader( const char *vertexShader, const char *fragmentShader = 0, const char *geometryShader = 0, GLint geometryInputType = GL_POINTS, GLint geometryOutputType = GL_TRIANGLES, GLint geometryOutputVertices = 0);
+	Shader( const char *vertexShader, const char *fragmentShader = 0,
+            const char *geometryShader = 0, GLint geometryInputType = GL_POINTS,
+            GLint geometryOutputType = GL_TRIANGLES,
+            GLint geometryOutputVertices = 0);
 
 	void			bind() const;
 	static void		unbind();
 
 	GLuint			getHandle() const ;
 
-	void	uniform( const std::string &name, int data );
-	void	uniform( const std::string &name, const glm::vec4 &data );
-	void	uniform( const std::string &name, const int *data, int count );		
-	void	uniform( const std::string &name, const glm::ivec2 *data, int count );	
-	void	uniform( const std::string &name, float data );
-	void	uniform( const std::string &name, const glm::vec2 &data );
-	void	uniform( const std::string &name, const glm::vec3 &data );
+	void uniform( const std::string &name, int data );
+	void uniform( const std::string &name, const glm::vec4 &data );
+	void uniform( const std::string &name, const int *data, int count );		
+	void uniform( const std::string &name, const glm::ivec2 *data, int count );	
+	void uniform( const std::string &name, float data );
+	void uniform( const std::string &name, const glm::vec2 &data );
+	void uniform( const std::string &name, const glm::vec3 &data );
 
-	void	uniform( const std::string &name, const glm::mat3 &data, bool transpose = false );
-	void	uniform( const std::string &name, const glm::mat4 &data, bool transpose = false );
-	void	uniform( const std::string &name, const float *data, int count );
-	void	uniform( const std::string &name, const glm::vec2 *data, int count );
-	void	uniform( const std::string &name, const glm::vec3 *data, int count );
-	void	uniform( const std::string &name, const glm::vec4 *data, int count );
+	void uniform( const std::string &name, const glm::mat3 &data, bool transpose = false );
+	void uniform( const std::string &name, const glm::mat4 &data, bool transpose = false );
+    
+	void uniform( const std::string &name, const float *data, int count );
+	void uniform( const std::string &name, const glm::vec2 *data, int count );
+	void uniform( const std::string &name, const glm::vec3 *data, int count );
+	void uniform( const std::string &name, const glm::vec4 *data, int count );
+    
+    void uniform(   const std::string &name, const glm::mat3 *theArray,
+                    int count, bool transpose );
+    void uniform(   const std::string &name, const glm::mat4 *theArray,
+                    int count, bool transpose );
 
 	GLint getUniformLocation( const std::string &name );
 	GLint getAttribLocation( const std::string &name );

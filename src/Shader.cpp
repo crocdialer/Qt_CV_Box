@@ -172,16 +172,16 @@ void Shader::uniform( const std::string &name, const float *data, int count )
 	glUniform1fv( loc, count, data );
 }
 
-void Shader::uniform( const std::string &name, const vec2 *data, int count )
+void Shader::uniform( const std::string &name, const vec2 *theArray, int count )
 {
 	GLint loc = getUniformLocation( name );
-	glUniform2fv( loc, count, &data[0].x );
+	glUniform2fv( loc, count, &theArray[0].x );
 }
 
-void Shader::uniform( const std::string &name, const vec3 *data, int count )
+void Shader::uniform( const std::string &name, const vec3 *theArray, int count )
 {
 	GLint loc = getUniformLocation( name );
-	glUniform3fv( loc, count, &data[0].x );
+	glUniform3fv( loc, count, &theArray[0].x );
 }
 
 void Shader::uniform( const std::string &name, const vec4 *theArray, int count )
@@ -202,6 +202,18 @@ void Shader::uniform( const std::string &name, const mat4 &theMat, bool transpos
 	glUniformMatrix4fv( loc, 1, ( transpose ) ? GL_TRUE : GL_FALSE, glm::value_ptr(theMat) );
 }
 
+void Shader::uniform( const std::string &name, const mat3 *theArray, int count, bool transpose )
+{
+    GLint loc = getUniformLocation( name );
+    glUniformMatrix3fv( loc, count, ( transpose ) ? GL_TRUE : GL_FALSE, glm::value_ptr(theArray[0]) );
+}
+
+void Shader::uniform( const std::string &name, const mat4 *theArray, int count, bool transpose )
+{
+    GLint loc = getUniformLocation( name );
+    glUniformMatrix4fv( loc, count, ( transpose ) ? GL_TRUE : GL_FALSE, glm::value_ptr(theArray[0]) );
+}
+    
 GLint Shader::getUniformLocation( const std::string &name )
 {
 	map<string,int>::const_iterator uniformIt = m_Obj->mUniformLocs.find( name );
