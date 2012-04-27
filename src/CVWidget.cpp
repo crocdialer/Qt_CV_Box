@@ -160,7 +160,6 @@ void CVWidget::wheelEvent(QWheelEvent *event)
 void CVWidget::timerEvent(QTimerEvent* e) 
 {
 	e->accept();
-	//printf("%d fps\n",m_framesDrawn);
 	
 	m_lastFps = m_framesDrawn ;
 	m_framesDrawn = 0 ;
@@ -169,8 +168,7 @@ void CVWidget::timerEvent(QTimerEvent* e)
 
 void CVWidget::drawTexture()
 {	
-    
-    //m_shader.bind();
+    // Texture will be bound in this scope
     gl::scoped_bind<gl::Texture> texBind(m_texture);
     //gl::scoped_bind<gl::Shader> shaderBind(m_shader);
     
@@ -201,15 +199,15 @@ void CVWidget::updateGLTexture(const Mat& img)
 	{
 		case 1:
             format = GL_LUMINANCE;
-            
 			break;
 		case 2:
             format = GL_LUMINANCE_ALPHA;
 			break;
 		case 3:
 			format = GL_BGR;
-
 			break;
+        case 4:
+			format = GL_BGRA;
 		default:
 			break;
 	}

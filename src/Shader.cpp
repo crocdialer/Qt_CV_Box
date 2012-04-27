@@ -49,8 +49,10 @@ Shader::Obj::~Obj()
 
 //////////////////////////////////////////////////////////////////////////
 // Shader
-Shader::Shader( const char *vertexShader, const char *fragmentShader, const char *geometryShader, GLint geometryInputType, GLint geometryOutputType, GLint geometryOutputVertices)
-	: m_Obj( ObjPtr( new Obj ) )
+Shader::Shader(const char *vertexShader, const char *fragmentShader,
+               const char *geometryShader, GLint geometryInputType,
+               GLint geometryOutputType, GLint geometryOutputVertices)
+: m_Obj( ObjPtr( new Obj ) )
 {
 	m_Obj->m_Handle = glCreateProgram();
 	

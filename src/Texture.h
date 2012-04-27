@@ -296,7 +296,7 @@ namespace gl
         {
             if(m_isBound)
                 unbind();
-        };
+        }
         
         inline void bind()
         {
