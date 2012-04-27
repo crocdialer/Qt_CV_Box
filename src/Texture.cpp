@@ -20,7 +20,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Texture.h" // has to be first
+#include "Texture.h"
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
