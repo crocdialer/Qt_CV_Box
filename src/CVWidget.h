@@ -7,6 +7,7 @@
 
 #include "CVThread.h"
 #include "Texture.h"
+#include "Shader.h"
 
 class CVWidget : public QGLWidget
 {
@@ -47,10 +48,11 @@ private:
     CVThreadPtr m_cvThread;
 	
     gl::Texture m_texture;
+    gl::Shader m_shader;
     
  	//-- OpenGL VBO for drawing the canvas
     GLfloat *m_vertices;
-    GLuint m_canvasVBO ;
+    GLuint m_vertexBuffer ;
 	
 	bool m_detectFaces;
 	

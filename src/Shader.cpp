@@ -33,39 +33,39 @@ namespace gl {
 // Shader::Obj
 struct Shader::Obj 
 {
-    Obj() : mHandle( 0 ) {}
+    Obj() : m_Handle( 0 ) {}
     ~Obj();
     
-    GLuint						mHandle;
-    std::map<std::string,int>	mUniformLocs;
+    GLuint						m_Handle;
+    std::map<std::string,int>	m_UniformLocs;
 
 };
     
 Shader::Obj::~Obj()
 {
-	if( mHandle )
-		glDeleteProgram( (GLuint)mHandle );
+	if( m_Handle )
+		glDeleteProgram( (GLuint)m_Handle );
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Shader
 Shader::Shader( const char *vertexShader, const char *fragmentShader, const char *geometryShader, GLint geometryInputType, GLint geometryOutputType, GLint geometryOutputVertices)
-	: m_Obj( shared_ptr<Obj>( new Obj ) )
+	: m_Obj( ObjPtr( new Obj ) )
 {
-	m_Obj->mHandle = glCreateProgram();
+	m_Obj->m_Handle = glCreateProgram();
 	
 	if ( vertexShader )
-		loadShader( vertexShader, GL_VERTEX_SHADER_ARB );
+		loadShader( vertexShader, GL_VERTEX_SHADER );
     
 	if( fragmentShader )
-		loadShader( fragmentShader, GL_FRAGMENT_SHADER_ARB );
+		loadShader( fragmentShader, GL_FRAGMENT_SHADER );
     
 	if( geometryShader ) {
 		loadShader( geometryShader, GL_GEOMETRY_SHADER_EXT );
         
-        glProgramParameteriEXT(m_Obj->mHandle, GL_GEOMETRY_INPUT_TYPE_EXT, geometryInputType);
-        glProgramParameteriEXT(m_Obj->mHandle, GL_GEOMETRY_OUTPUT_TYPE_EXT, geometryOutputType);
-        glProgramParameteriEXT(m_Obj->mHandle, GL_GEOMETRY_VERTICES_OUT_EXT, geometryOutputVertices);
+        glProgramParameteriEXT(m_Obj->m_Handle, GL_GEOMETRY_INPUT_TYPE_EXT, geometryInputType);
+        glProgramParameteriEXT(m_Obj->m_Handle, GL_GEOMETRY_OUTPUT_TYPE_EXT, geometryOutputType);
+        glProgramParameteriEXT(m_Obj->m_Handle, GL_GEOMETRY_VERTICES_OUT_EXT, geometryOutputVertices);
     }
     
 	link();
@@ -83,17 +83,17 @@ void Shader::loadShader( const char *shaderSource, GLint shaderType )
 		std::string log = getShaderLog( (GLuint)handle );
 		throw ShaderCompileExc( log, shaderType );
 	}
-	glAttachShader( m_Obj->mHandle, handle );
+	glAttachShader( m_Obj->m_Handle, handle );
 }
 
 void Shader::link()
 {
-	glLinkProgram( m_Obj->mHandle );	
+	glLinkProgram( m_Obj->m_Handle );	
 }
 
 void Shader::bind() const
 {
-	glUseProgram( m_Obj->mHandle );
+	glUseProgram( m_Obj->m_Handle );
 }
 
 void Shader::unbind()
@@ -103,7 +103,7 @@ void Shader::unbind()
 
 GLuint Shader::getHandle() const
 {
-    return m_Obj->mHandle;
+    return m_Obj->m_Handle;
 }
     
 std::string Shader::getShaderLog( GLuint handle ) const
@@ -216,10 +216,10 @@ void Shader::uniform( const std::string &name, const mat4 *theArray, int count, 
     
 GLint Shader::getUniformLocation( const std::string &name )
 {
-	map<string,int>::const_iterator uniformIt = m_Obj->mUniformLocs.find( name );
-	if( uniformIt == m_Obj->mUniformLocs.end() ) {
-		GLint loc = glGetUniformLocation( m_Obj->mHandle, name.c_str() );
-		m_Obj->mUniformLocs[name] = loc;
+	map<string,int>::const_iterator uniformIt = m_Obj->m_UniformLocs.find( name );
+	if( uniformIt == m_Obj->m_UniformLocs.end() ) {
+		GLint loc = glGetUniformLocation( m_Obj->m_Handle, name.c_str() );
+		m_Obj->m_UniformLocs[name] = loc;
 		return loc;
 	}
 	else
@@ -228,23 +228,23 @@ GLint Shader::getUniformLocation( const std::string &name )
 
 GLint Shader::getAttribLocation( const std::string &name )
 {
-	return glGetAttribLocation( m_Obj->mHandle, name.c_str() );
+	return glGetAttribLocation( m_Obj->m_Handle, name.c_str() );
 }
 
 //////////////////////////////////////////////////////////////////////////
 // ShaderCompileExc
 ShaderCompileExc::ShaderCompileExc( const std::string &log, GLint aShaderType ) throw()
-	: mShaderType( aShaderType )
+	: m_ShaderType( aShaderType )
 {
-	if( mShaderType == GL_VERTEX_SHADER_ARB )
-		strncpy( mMessage, "VERTEX: ", 1000 );
-	else if( mShaderType == GL_FRAGMENT_SHADER_ARB )
-		strncpy( mMessage, "FRAGMENT: ", 1000 );
-	else if( mShaderType == GL_GEOMETRY_SHADER_EXT )
-		strncpy( mMessage, "GEOMETRY: ", 1000 );
+	if( m_ShaderType == GL_VERTEX_SHADER )
+		strncpy( m_Message, "VERTEX: ", 1000 );
+	else if( m_ShaderType == GL_FRAGMENT_SHADER )
+		strncpy( m_Message, "FRAGMENT: ", 1000 );
+	else if( m_ShaderType == GL_GEOMETRY_SHADER_EXT )
+		strncpy( m_Message, "GEOMETRY: ", 1000 );
 	else
-		strncpy( mMessage, "UNKNOWN: ", 1000 );
-	strncat( mMessage, log.c_str(), 15000 );
+		strncpy( m_Message, "UNKNOWN: ", 1000 );
+	strncat( m_Message, log.c_str(), 15000 );
 }
 	
 }

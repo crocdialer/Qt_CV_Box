@@ -27,10 +27,7 @@ using namespace std;
 using namespace glm;
 
 namespace gl {
-
-//class ImageSourceTexture;
-//class ImageTargetTexture;
-
+    
 TextureDataExc::TextureDataExc( const std::string &log ) throw()
 { strncpy( mMessage, log.c_str(), 16000 ); }
 
@@ -51,37 +48,37 @@ Texture::Format::Format()
 /////////////////////////////////////////////////////////////////////////////////
 // Texture::Obj
     
-    struct Texture::Obj {
-        Obj() : m_Width( -1 ), m_Height( -1 ), m_CleanWidth( -1 ),
-        m_CleanHeight( -1 ), m_InternalFormat( -1 ), m_TextureID( 0 ),
-        m_Flipped( false ), m_DeallocatorFunc( 0 ) {};
+struct Texture::Obj {
+    Obj() : m_Width( -1 ), m_Height( -1 ), m_CleanWidth( -1 ),
+    m_CleanHeight( -1 ), m_InternalFormat( -1 ), m_TextureID( 0 ),
+    m_Flipped( false ), m_DeallocatorFunc( 0 ) {};
+    
+    Obj( int aWidth, int aHeight ) : m_Width( aWidth ), m_Height( aHeight ),
+    m_CleanWidth( aWidth ), m_CleanHeight( aHeight ), m_InternalFormat( -1 ),
+    m_TextureID( 0 ), m_Flipped( false ), m_DeallocatorFunc( 0 )  {};
+    
+    ~Obj()
+    {
+        if( m_DeallocatorFunc )
+            (*m_DeallocatorFunc)( m_DeallocatorRefcon );
         
-        Obj( int aWidth, int aHeight ) : m_Width( aWidth ), m_Height( aHeight ),
-        m_CleanWidth( aWidth ), m_CleanHeight( aHeight ), m_InternalFormat( -1 ),
-        m_TextureID( 0 ), m_Flipped( false ), m_DeallocatorFunc( 0 )  {};
-        
-        ~Obj()
-        {
-            if( m_DeallocatorFunc )
-                (*m_DeallocatorFunc)( m_DeallocatorRefcon );
-            
-            if( ( m_TextureID > 0 ) && ( ! m_DoNotDispose ) ) {
-                glDeleteTextures( 1, &m_TextureID );
-            }
+        if( ( m_TextureID > 0 ) && ( ! m_DoNotDispose ) ) {
+            glDeleteTextures( 1, &m_TextureID );
         }
+    }
 
-        
-        mutable GLint	m_Width, m_Height, m_CleanWidth, m_CleanHeight;
-        float			mMaxU, mMaxV;
-        mutable GLint	m_InternalFormat;
-        GLenum			m_Target;
-        GLuint			m_TextureID;
-        glm::mat4       m_textureMatrix;
-        
-        bool			m_DoNotDispose;
-        bool			m_Flipped;	
-        void			(*m_DeallocatorFunc)(void *refcon);
-        void			*m_DeallocatorRefcon;			
+    
+    mutable GLint	m_Width, m_Height, m_CleanWidth, m_CleanHeight;
+    float			mMaxU, mMaxV;
+    mutable GLint	m_InternalFormat;
+    GLenum			m_Target;
+    GLuint			m_TextureID;
+    glm::mat4       m_textureMatrix;
+    
+    bool			m_DoNotDispose;
+    bool			m_Flipped;	
+    void			(*m_DeallocatorFunc)(void *refcon);
+    void			*m_DeallocatorRefcon;			
 };
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -445,27 +442,6 @@ GLint Texture::getCleanHeight() const
 #endif // ! defined( CINDER_GLES )	
 }
 
-//Rectf Texture::getAreaTexCoords( const Area &area ) const
-//{
-//	Rectf result;
-//
-//	if( m_Obj->m_Target == GL_TEXTURE_2D ) {
-//		result.x1 = area.x1 / (float)getWidth();
-//		result.x2 = area.x2 / (float)getWidth();
-//		result.y1 = area.y1 / (float)getHeight();
-//		result.y2 = area.y2 / (float)getHeight();	
-//	}
-//	else {
-//		result = Rectf( area );
-//	}
-//	
-//	if( m_Obj->m_Flipped ) {
-//		std::swap( result.y1, result.y2 );
-//	}
-//	
-//	return result;
-//}
-
 float Texture::getBottom() const
 {
 	return ( m_Obj->m_Flipped ) ? 0.0f : getMaxV();
@@ -483,7 +459,7 @@ float Texture::getMaxV() const
 
 void Texture::bind( GLuint textureUnit ) const
 {
-    if(!m_Obj) return; //throw TextureDataExc("Tried to bind uninitialized texture ...");
+    if(!m_Obj) return;//throw TextureDataExc("Tried to bind uninitialized texture ...");
     
 	glActiveTexture( GL_TEXTURE0 + textureUnit );
 	glBindTexture( m_Obj->m_Target, m_Obj->m_TextureID );
@@ -492,6 +468,8 @@ void Texture::bind( GLuint textureUnit ) const
 
 void Texture::unbind( GLuint textureUnit ) const
 {
+    if(!m_Obj) return;//throw TextureDataExc("Tried to unbind uninitialized texture ...");
+    
 	glActiveTexture( GL_TEXTURE0 + textureUnit );
 	glBindTexture( m_Obj->m_Target, 0 );
 	glActiveTexture( GL_TEXTURE0 );

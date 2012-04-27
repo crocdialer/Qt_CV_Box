@@ -34,6 +34,8 @@
 
 using boost::shared_ptr;
 
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 namespace gl {
 
 //! Represents an OpenGL GLSL program. \ImplShared
@@ -52,20 +54,20 @@ class Shader {
 	GLuint			getHandle() const ;
 
 	void uniform( const std::string &name, int data );
-	void uniform( const std::string &name, const glm::vec4 &data );
+	void uniform( const std::string &name, const glm::vec4 &theVec );
 	void uniform( const std::string &name, const int *data, int count );		
-	void uniform( const std::string &name, const glm::ivec2 *data, int count );	
+	void uniform( const std::string &name, const glm::ivec2 *theArray, int count );	
 	void uniform( const std::string &name, float data );
-	void uniform( const std::string &name, const glm::vec2 &data );
-	void uniform( const std::string &name, const glm::vec3 &data );
+	void uniform( const std::string &name, const glm::vec2 &theVec );
+	void uniform( const std::string &name, const glm::vec3 &theVec );
 
-	void uniform( const std::string &name, const glm::mat3 &data, bool transpose = false );
-	void uniform( const std::string &name, const glm::mat4 &data, bool transpose = false );
+	void uniform( const std::string &name, const glm::mat3 &theMat, bool transpose = false );
+	void uniform( const std::string &name, const glm::mat4 &theMat, bool transpose = false );
     
-	void uniform( const std::string &name, const float *data, int count );
-	void uniform( const std::string &name, const glm::vec2 *data, int count );
-	void uniform( const std::string &name, const glm::vec3 *data, int count );
-	void uniform( const std::string &name, const glm::vec4 *data, int count );
+	void uniform( const std::string &name, const float *theArray, int count );
+	void uniform( const std::string &name, const glm::vec2 *theArray, int count );
+	void uniform( const std::string &name, const glm::vec3 *theArray, int count );
+	void uniform( const std::string &name, const glm::vec4 *theArray, int count );
     
     void uniform(   const std::string &name, const glm::mat3 *theArray,
                     int count, bool transpose );
@@ -100,12 +102,12 @@ class ShaderCompileExc : public std::exception {
 	ShaderCompileExc( const std::string &log, GLint aShaderType ) throw();
 	virtual const char* what() const throw()
 	{
-		return mMessage;
+		return m_Message;
 	}
 
  private:
-	char	mMessage[16001];
-	GLint	mShaderType;
+	char	m_Message[16001];
+	GLint	m_ShaderType;
 };
 
 class ShaderNullProgramExc : public std::exception {

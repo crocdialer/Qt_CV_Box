@@ -10,7 +10,7 @@ list<QGLWidget*> CVWidget::ms_shares;
 
 
 CVWidget::CVWidget(QWidget *prnt,QGLWidget *shr):QGLWidget(prnt,shr),
-m_vertices(NULL),
+m_vertices(NULL), m_vertexBuffer(0),
 m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
 {	
 	// static shares, to have only one Gl-context for all widgets
@@ -36,12 +36,12 @@ CVWidget::~CVWidget()
 
 void CVWidget::setCVThread(const CVThreadPtr& cvt)
 {
-	if(m_cvThread.get())
+	if(m_cvThread)
 		disconnect(m_cvThread.get(), SIGNAL(imageChanged()), this, SLOT(updateImage()) );
 	
 	m_cvThread = cvt;
     
-	if(m_cvThread.get())
+	if(m_cvThread)
 	{
 		connect(m_cvThread.get(), SIGNAL(imageChanged()), this, SLOT(updateImage()),Qt::QueuedConnection );
 	}
@@ -112,6 +112,16 @@ void CVWidget::buildCanvasVBO()
     
     m_vertices = new GLfloat[sizeof(array) / sizeof(GLfloat)];
     std::memcpy(m_vertices, array, sizeof(array));
+    
+    glGenBuffers(1, &m_vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(array), array, GL_STATIC_DRAW);
+    
+//    GLuint positionAttribLocation = m_shader.getAttribLocation("a_position");
+//    glEnableVertexAttribArray(positionAttribLocation);
+//    glVertexAttribPointer(positionAttribLocation, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(0));
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void CVWidget::mousePressEvent(QMouseEvent *event)
@@ -159,13 +169,18 @@ void CVWidget::timerEvent(QTimerEvent* e)
 
 void CVWidget::drawTexture()
 {	
-
-    m_texture.bind();
+    
+    //m_shader.bind();
+    gl::scoped_bind<gl::Texture> texBind(m_texture);
+    //gl::scoped_bind<gl::Shader> shaderBind(m_shader);
+    
+//    m_shader.uniform("u_textureMatrix", m_texture.getTextureMatrix());
+//    m_shader.uniform("u_mvpMatrix", glm::mat4());
 	
     //TODO: seperate texcoords
 	glInterleavedArrays(GL_T2F_V3F, 0, m_vertices);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	
+
 }
 
 void CVWidget::updateImage()

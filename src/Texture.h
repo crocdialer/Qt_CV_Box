@@ -20,8 +20,7 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _TEXTURE_H
-#define _TEXTURE_H
+#pragma once
 
 #include <OpenGL/gl.h>
 #include <boost/shared_ptr.hpp>
@@ -280,6 +279,41 @@ namespace gl
         GLint	mShaderType;
     };
     
+    template<typename T> class scoped_bind
+    {
+    public:
+        scoped_bind():
+        m_obj(NULL),m_isBound(false)
+        {}
+        
+        scoped_bind(T &theObj):
+        m_obj(&theObj),m_isBound(false)
+        {
+            bind();
+        }
+        
+        ~scoped_bind()
+        {
+            if(m_isBound)
+                unbind();
+        };
+        
+        inline void bind()
+        {
+            m_obj->bind();
+            m_isBound = true;
+        }
+        
+        inline void unbind()
+        {
+            m_obj->unbind();
+            m_isBound = false;
+        }
+        
+    private:
+        
+        T *m_obj;
+        bool m_isBound;
+    };
     
 }
-#endif //_TEXTURE_H
