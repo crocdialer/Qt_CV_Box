@@ -10,13 +10,11 @@ list<QGLWidget*> CVWidget::ms_shares;
 
 
 CVWidget::CVWidget(QWidget *prnt,QGLWidget *shr):QGLWidget(prnt,shr),
+m_vertices(NULL),
 m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
 {	
 	// static shares, to have only one Gl-context for all widgets
     ms_shares.push_back(this);
-	
-	//setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
-	m_canvasList = 0;
 	
     font.setPointSize(18);
 }
@@ -32,6 +30,8 @@ CVWidget::~CVWidget()
 	}
 	
 	ms_shares.remove(this);
+    
+    if(m_vertices) delete [] m_vertices;
 }
 
 void CVWidget::setCVThread(const CVThreadPtr& cvt)
@@ -57,8 +57,8 @@ void CVWidget::initializeGL()
 	
     glEnable(GL_TEXTURE_2D);
     
-	// displaylist for our canvas
-	m_canvasList = buildCanvasList() ;
+	// display array and VBO for our canvas
+	buildCanvasVBO() ;
 	
 	//FPS Timer
 	if(m_drawFPS) startTimer(1000);
@@ -100,45 +100,18 @@ void CVWidget::resizeGL(int newWidth, int newHeight)
 	glMatrixMode(GL_MODELVIEW);
 }
 
-GLuint CVWidget::buildCanvasList()
-{	
-	GLuint list = glGenLists(1);
-	assert(list);
-	
+void CVWidget::buildCanvasVBO()
+{
     //GL_T2F_V3F
     const GLfloat array[] ={0.0,0.0,0.0,0.0,0.0,
                             1.0,0.0,1.0,0.0,0.0,
                             1.0,1.0,1.0,1.0,0.0,
                             0.0,1.0,0.0,1.0,0.0};
     
+    if (m_vertices) delete [] m_vertices;
     
-    
-    glNewList(list, GL_COMPILE);
-	
-    glInterleavedArrays(GL_T2F_V3F, 0, array);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    
-    /*
-	glBegin( GL_QUADS );
-	
-	glTexCoord2f(0, 0);
-	glVertex2f(0.0, 0.0);
-	
-	glTexCoord2f(1.0, 0.0);
-	glVertex2f(1.0, 0.0);
-	
-	glTexCoord2f(1.0, 1.0);
-	glVertex2f(1.0, 1.0);
-	
-	glTexCoord2f(0, 1.0);
-	glVertex2f(0, 1.0);
-	
-	glEnd();
-	*/
-    
-	glEndList();
-	
-	return list ;
+    m_vertices = new GLfloat[sizeof(array) / sizeof(GLfloat)];
+    std::memcpy(m_vertices, array, sizeof(array));
 }
 
 void CVWidget::mousePressEvent(QMouseEvent *event)
@@ -189,8 +162,9 @@ void CVWidget::drawTexture()
 
     m_texture.bind();
 	
-	//draw renderTexture
-	glCallList(m_canvasList);
+    //TODO: seperate texcoords
+	glInterleavedArrays(GL_T2F_V3F, 0, m_vertices);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	
 }
 
@@ -198,12 +172,12 @@ void CVWidget::updateImage()
 {	
     const CVThread::FrameBundle &bundle = m_cvThread->getFrameBundle();
 
-	createGLTexture(bundle.m_result);
+	updateGLTexture(bundle.m_result);
 	
 	updateGL();
 }
 
-void CVWidget::createGLTexture(const Mat& img)
+void CVWidget::updateGLTexture(const Mat& img)
 {	
     
 	GLenum format=0;

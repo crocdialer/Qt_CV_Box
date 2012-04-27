@@ -48,8 +48,9 @@ private:
 	
     gl::Texture m_texture;
     
- 	//-- OpenGL display list for drawing the canvas
-	GLuint m_canvasList ;
+ 	//-- OpenGL VBO for drawing the canvas
+    GLfloat *m_vertices;
+    GLuint m_canvasVBO ;
 	
 	bool m_detectFaces;
 	
@@ -57,7 +58,7 @@ private:
 	int m_framesDrawn ;
 	int m_lastFps ;
 	
-	GLuint buildCanvasList();
+	void buildCanvasVBO();
 	
 protected:
 	
@@ -72,7 +73,7 @@ protected:
 	void timerEvent(QTimerEvent* e);
 	
 	//-- Create a drawing texture of an OpenCV Mat
-	void createGLTexture(const cv::Mat& img);
+	void updateGLTexture(const cv::Mat& img);
 	
 	void drawTexture();
 	
