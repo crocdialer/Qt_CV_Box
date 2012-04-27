@@ -21,10 +21,10 @@
 */
 
 #include "Texture.h" // has to be first
-
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
-using namespace Eigen;
+using namespace glm;
 
 namespace gl {
 
@@ -36,6 +36,7 @@ TextureDataExc::TextureDataExc( const std::string &log ) throw()
 
 /////////////////////////////////////////////////////////////////////////////////
 // Texture::Format
+    
 Texture::Format::Format()
 {
 	m_Target = GL_TEXTURE_2D;
@@ -49,14 +50,15 @@ Texture::Format::Format()
 
 /////////////////////////////////////////////////////////////////////////////////
 // Texture::Obj
-    struct Obj {
+    
+    struct Texture::Obj {
         Obj() : m_Width( -1 ), m_Height( -1 ), m_CleanWidth( -1 ),
         m_CleanHeight( -1 ), m_InternalFormat( -1 ), m_TextureID( 0 ),
-        m_Flipped( false ), m_DeallocatorFunc( 0 ) {}
+        m_Flipped( false ), m_DeallocatorFunc( 0 ) {};
         
         Obj( int aWidth, int aHeight ) : m_Width( aWidth ), m_Height( aHeight ),
         m_CleanWidth( aWidth ), m_CleanHeight( aHeight ), m_InternalFormat( -1 ),
-        m_TextureID( 0 ), m_Flipped( false ), m_DeallocatorFunc( 0 )  {}
+        m_TextureID( 0 ), m_Flipped( false ), m_DeallocatorFunc( 0 )  {};
         
         ~Obj()
         {
@@ -74,7 +76,7 @@ Texture::Format::Format()
         mutable GLint	m_InternalFormat;
         GLenum			m_Target;
         GLuint			m_TextureID;
-        Eigen::Matrix4f m_textureMatrix;
+        glm::mat4       m_textureMatrix;
         
         bool			m_DoNotDispose;
         bool			m_Flipped;	
@@ -126,23 +128,6 @@ Texture::Texture( GLenum aTarget, GLuint aTextureID, int aWidth, int aHeight, bo
 void Texture::init( const unsigned char *data, int unpackRowLength, GLenum dataFormat, GLenum type, const Format &format )
 {
 	m_Obj->m_DoNotDispose = false;
-    
-    if(m_Obj->m_Flipped)
-    {
-        m_Obj->m_textureMatrix = Matrix4f::Identity();
-        m_Obj->m_textureMatrix(1,1) = -1 ;
-        //mtr.col = Vector4f::Ones();
-        
-        //std::cout<<"textureMatrix: \n" <<mtr <<"\n";
-        
-//        glMatrixMode(GL_TEXTURE);
-//        glLoadMatrixf(m_Obj->m_textureMatrix.data());
-        
-//        glMatrixMode(GL_MODELVIEW);
-//        glLoadIdentity();
-        
-//        
-    }
     
     if(!m_Obj->m_TextureID)
     {
@@ -284,12 +269,12 @@ void Texture::setDoNotDispose( bool aDoNotDispose )
     m_Obj->m_DoNotDispose = aDoNotDispose; 
 }
 
-void Texture::setTextureMatrix( const Eigen::Matrix4f &theMatrix )
+void Texture::setTextureMatrix( const mat4 &theMatrix )
 {
     m_Obj->m_textureMatrix = theMatrix;
 }
     
-const Eigen::Matrix4f Texture::getTextureMatrix() const 
+const mat4 &Texture::getTextureMatrix() const 
 { 
     return m_Obj->m_textureMatrix; 
 }
@@ -313,7 +298,11 @@ bool Texture::isFlipped() const
 //!	Marks the texture as being flipped vertically or not
 void Texture::setFlipped( bool aFlipped ) 
 { 
-    m_Obj->m_Flipped = aFlipped; 
+    m_Obj->m_Flipped = aFlipped;
+    m_Obj->m_textureMatrix = mat4();
+    
+    if(aFlipped) 
+        m_Obj->m_textureMatrix[1] = vec4(1, -1, 1, 0);
 }
     
 void Texture::setWrapS( GLenum wrapS )
@@ -494,6 +483,8 @@ float Texture::getMaxV() const
 
 void Texture::bind( GLuint textureUnit ) const
 {
+    if(!m_Obj) return; //throw TextureDataExc("Tried to bind uninitialized texture ...");
+    
 	glActiveTexture( GL_TEXTURE0 + textureUnit );
 	glBindTexture( m_Obj->m_Target, m_Obj->m_TextureID );
 	glActiveTexture( GL_TEXTURE0 );

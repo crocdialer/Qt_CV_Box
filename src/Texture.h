@@ -24,8 +24,10 @@
 #define _TEXTURE_H
 
 #include <OpenGL/gl.h>
-#include "Eigen/Dense"
 #include <boost/shared_ptr.hpp>
+
+#include <boost/static_assert.hpp>
+#include <glm/glm.hpp>
 
 using boost::shared_ptr;
 //using std::shared_ptr
@@ -79,9 +81,9 @@ namespace gl
         /** Designed to accommodate texture where not all pixels are "clean", meaning the maximum texture coordinate value may not be 1.0 (or the texture's width in \c GL_TEXTURE_RECTANGLE_ARB) **/
         void setCleanTexCoords( float maxU, float maxV );
         
-        void setTextureMatrix( const Eigen::Matrix4f &theMatrix );
+        void setTextureMatrix( const glm::mat4 &theMatrix );
         
-        const Eigen::Matrix4f getTextureMatrix() const;
+        const glm::mat4 &getTextureMatrix() const;
         
         //	//! Replaces the pixels of a texture with contents of \a surface. Expects \a surface's size to match the Texture's.
         //	void			update( const Surface &surface );
@@ -95,7 +97,7 @@ namespace gl
         //	//! Replaces the pixels of a texture with contents of \a channel. Expects \a area's size to match the Texture's.
         //	void			update( const Channel8u &channel, const Area &area );
         
-        //! Replaces the pixels of a texture with contents of \a channel.
+        //! Replaces the pixels of a texture with \a data
         void update( const unsigned char *data,GLenum format, int theWidth, int theHeight, bool flipped = false );
         
         //! the width of the texture in pixels
@@ -108,10 +110,12 @@ namespace gl
         GLint getCleanHeight() const;
         
         //! the size of the texture in pixels
-        const Eigen::Vector2i getSize() const { return Eigen::Vector2i( getWidth(), getHeight() ); }	
+        //const Eigen::Vector2i getSize() const { return Eigen::Vector2i( getWidth(), getHeight() ); }	
+        const glm::vec2 getSize() const { return glm::vec2( getWidth(), getHeight() ); }	
         
         //! the aspect ratio of the texture (width / height)
         float getAspectRatio() const { return getWidth() / (float)getHeight(); }
+        
         //! the Area defining the Texture's bounds in pixels: [0,0]-[width,height]
 //        Area getBounds() const { return Area( 0, 0, getWidth(), getHeight() ); }
 //        //! the Area defining the Texture's clean pixel bounds in pixels: [0,0]-[width*maxU,height*maxV]
@@ -161,9 +165,8 @@ namespace gl
         //!	Unbinds the Texture currently bound in the Texture's target
         void unbind( GLuint textureUnit = 0 ) const;
         
-        
         //! Returns whether a given OpenGL dataFormat contains an alpha channel
-        static bool		dataFormatHasAlpha( GLint dataFormat );
+        static bool	dataFormatHasAlpha( GLint dataFormat );
         
         //! Returns whether a give OpenGL dataFormat contains color channels
         static bool dataFormatHasColor( GLint dataFormat );
@@ -251,7 +254,8 @@ namespace gl
         void	init( const float *data, GLint dataFormat, const Format &format );
         
         // forward declared Implementation object
-        typedef shared_ptr<struct Obj> ObjPtr;
+        struct Obj;
+        typedef shared_ptr<Obj> ObjPtr;
         ObjPtr m_Obj;
         
     public:

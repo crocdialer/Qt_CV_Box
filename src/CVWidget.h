@@ -22,8 +22,8 @@ public:
     void paintGL();
     void resizeGL(int w, int h);
 	
-	GLuint getGLTextureIndex() const {return m_GLTextureIndex;};
-	void setGLTextureIndex(GLuint i){m_GLTextureIndex=i;};
+	const gl::Texture &getTexture() const {return m_texture;};
+	void setTexture(const gl::Texture &theTexture){m_texture = theTexture;};
 	
 	void setCVThread(const CVThreadPtr& cvt);
 	CVThreadPtr getCVThread() const {return m_cvThread;};
@@ -46,13 +46,9 @@ private:
 	//-- Thread for processing CV-Tasks in the background
     CVThreadPtr m_cvThread;
 	
-    
     gl::Texture m_texture;
     
-	//-- OpenGL texture index
-	GLuint m_GLTextureIndex ;
-	
-	//-- OpenGL display list for drawing the canvas
+ 	//-- OpenGL display list for drawing the canvas
 	GLuint m_canvasList ;
 	
 	bool m_detectFaces;
@@ -62,8 +58,6 @@ private:
 	int m_lastFps ;
 	
 	GLuint buildCanvasList();
-	
-    //void fetchGlobalAxis(Vector& x,Vector& y,Vector& z);
 	
 protected:
 	

@@ -10,7 +10,7 @@ list<QGLWidget*> CVWidget::ms_shares;
 
 
 CVWidget::CVWidget(QWidget *prnt,QGLWidget *shr):QGLWidget(prnt,shr),
-m_GLTextureIndex(0),m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
+m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
 {	
 	// static shares, to have only one Gl-context for all widgets
     ms_shares.push_back(this);
@@ -30,8 +30,6 @@ CVWidget::~CVWidget()
 		m_cvThread->wait();
 		
 	}
-	
-	glDeleteTextures(1, &m_GLTextureIndex);
 	
 	ms_shares.remove(this);
 }
@@ -188,10 +186,8 @@ void CVWidget::timerEvent(QTimerEvent* e)
 
 void CVWidget::drawTexture()
 {	
-	//glBindTexture(GL_TEXTURE_2D, m_GLTextureIndex);
-    
-    if(m_texture)
-        m_texture.bind();
+
+    m_texture.bind();
 	
 	//draw renderTexture
 	glCallList(m_canvasList);
@@ -228,24 +224,6 @@ void CVWidget::createGLTexture(const Mat& img)
 		default:
 			break;
 	}
-//    // Vertical flip
-//	glPushMatrix();
-//    glMatrixMode(GL_TEXTURE);
-//	glLoadIdentity();
-//	glScalef(1.f,-1.f,1.f);
-//    
-//	/* Create linear filtered Texture */
-//	glBindTexture(GL_TEXTURE_2D, m_GLTextureIndex);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-//	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, img.cols, img.rows, 0, format, GL_UNSIGNED_BYTE,img.data);
-//    
-//    glPopMatrix();
-//	glMatrixMode(GL_MODELVIEW);
     
-//    gl::Texture::Format texFormat;
-//    texFormat.
-    
-    //m_texture = gl::Texture(img.data, format, img.cols, img.rows);
     m_texture.update(img.data, format, img.cols, img.rows, true);
 }
