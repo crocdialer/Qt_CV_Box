@@ -83,7 +83,7 @@ IF( APPLE )
     SET( MACOSX_BUNDLE_ICON_FILE persona.icns )
 
 file(GLOB_RECURSE resFiles
-  ${CMAKE_SOURCE_DIR}/persona.icns
+  ${CMAKE_SOURCE_DIR}/res/*
 )
 
 SET_SOURCE_FILES_PROPERTIES(

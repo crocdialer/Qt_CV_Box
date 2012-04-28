@@ -78,11 +78,15 @@ class Shader {
 	GLint getAttribLocation( const std::string &name );
 
 	std::string getShaderLog( GLuint handle ) const;
-
+    
+    void loadFromFile(const std::string &vertPath, const std::string &fragPath);
+    
   protected:
 	void loadShader( const char *shaderSource, GLint shaderType );
 	void attachShaders();
 	void link();
+    
+    const std::string readFile(const std::string &path);
 
 	struct Obj;
     typedef shared_ptr<Obj> ObjPtr;

@@ -26,7 +26,10 @@
 #include <boost/shared_ptr.hpp>
 
 #include <boost/static_assert.hpp>
+
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 using boost::shared_ptr;
 //using std::shared_ptr
@@ -83,6 +86,9 @@ namespace gl
         void setTextureMatrix( const glm::mat4 &theMatrix );
         
         const glm::mat4 &getTextureMatrix() const;
+        
+        const bool isBound() const;
+        const GLint getBoundTextureUnit() const;
         
         //	//! Replaces the pixels of a texture with contents of \a surface. Expects \a surface's size to match the Texture's.
         //	void			update( const Surface &surface );
@@ -286,7 +292,7 @@ namespace gl
         m_obj(NULL),m_isBound(false)
         {}
         
-        scoped_bind(T &theObj):
+        explicit scoped_bind(T &theObj):
         m_obj(&theObj),m_isBound(false)
         {
             bind();

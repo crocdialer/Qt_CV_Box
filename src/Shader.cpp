@@ -23,6 +23,7 @@
 #include "Shader.h"
 #include <map>
 #include <glm/gtc/type_ptr.hpp>
+#include <fstream>
 
 using namespace std;
 using namespace glm;
@@ -72,7 +73,34 @@ Shader::Shader(const char *vertexShader, const char *fragmentShader,
     
 	link();
 }
-
+    
+void Shader::loadFromFile(const std::string &vertPath, const std::string &fragPath)
+{
+    if(!m_Obj)
+    {
+        m_Obj = ObjPtr(new Obj);
+        m_Obj->m_Handle = glCreateProgram();
+    }
+    
+    string vertSrc, fragSrc;
+    vertSrc = readFile(vertPath);
+    fragSrc = readFile(fragPath);
+    
+    loadShader( vertSrc.c_str(), GL_VERTEX_SHADER );
+	loadShader( fragSrc.c_str(), GL_FRAGMENT_SHADER );
+    
+    link();
+}
+    
+const string Shader::readFile(const std::string &path)
+{
+    
+    ifstream inStream(path.c_str());
+    string ret((istreambuf_iterator<char>(inStream)),
+                istreambuf_iterator<char>());
+    return ret;
+}
+    
 void Shader::loadShader( const char *shaderSource, GLint shaderType )
 {
 	GLuint handle = glCreateShader( shaderType );

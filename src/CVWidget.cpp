@@ -54,12 +54,21 @@ void CVWidget::initializeGL()
         throw runtime_error("no doublebuffering available ...");
 	
 	glClearColor(0.0, 0.0, 0.0, 1.0);
-	
+
     glEnable(GL_TEXTURE_2D);
     
-	// display array and VBO for our canvas
+    try 
+    {
+        m_shader.loadFromFile("texShader.vsh", "texShader.fsh");
+    } 
+    catch (std::exception &e) 
+    {
+        printf("%s\n",e.what());
+    }
+
+    // display array and VBO for our canvas
 	buildCanvasVBO() ;
-	
+    
 	//FPS Timer
 	if(m_drawFPS) startTimer(1000);
 }
@@ -116,11 +125,6 @@ void CVWidget::buildCanvasVBO()
     glGenBuffers(1, &m_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(array), array, GL_STATIC_DRAW);
-    
-//    GLuint positionAttribLocation = m_shader.getAttribLocation("a_position");
-//    glEnableVertexAttribArray(positionAttribLocation);
-//    glVertexAttribPointer(positionAttribLocation, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(0));
-    
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -170,15 +174,35 @@ void CVWidget::drawTexture()
 {	
     // Texture will be bound in this scope
     gl::scoped_bind<gl::Texture> texBind(m_texture);
-    //gl::scoped_bind<gl::Shader> shaderBind(m_shader);
+    gl::scoped_bind<gl::Shader> shaderBind(m_shader);
     
-//    m_shader.uniform("u_textureMatrix", m_texture.getTextureMatrix());
-//    m_shader.uniform("u_mvpMatrix", glm::mat4());
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    
+    glm::mat4 projectionMatrix = glm::ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+    glm::mat4 modelViewMatrix;
+    
+    if(m_texture){
+        m_shader.uniform("u_textureMap", m_texture.getBoundTextureUnit());
+        
+        m_shader.uniform("u_textureMatrix", m_texture.getTextureMatrix());
+        m_shader.uniform("u_modelViewProjectionMatrix", 
+                         projectionMatrix * modelViewMatrix);
+        
+        GLuint positionAttribLocation = m_shader.getAttribLocation("a_position");
+        glEnableVertexAttribArray(positionAttribLocation);
+        glVertexAttribPointer(positionAttribLocation, 3, GL_FLOAT, GL_FALSE,
+                              5 * sizeof(GLfloat), BUFFER_OFFSET(2 * sizeof(GLfloat)));
+        
+        GLuint texCoordAttribLocation = m_shader.getAttribLocation("a_texCoord");
+        glEnableVertexAttribArray(texCoordAttribLocation);
+        glVertexAttribPointer(texCoordAttribLocation, 2, GL_FLOAT, GL_FALSE,
+                              5 * sizeof(GLfloat), BUFFER_OFFSET(0));
+        
+    }
 	
-    //TODO: seperate texcoords
-	glInterleavedArrays(GL_T2F_V3F, 0, m_vertices);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void CVWidget::updateImage()

@@ -21,7 +21,6 @@
 */
 
 #include "Texture.h"
-#include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
 using namespace glm;
@@ -55,7 +54,8 @@ struct Texture::Obj {
     
     Obj( int aWidth, int aHeight ) : m_Width( aWidth ), m_Height( aHeight ),
     m_CleanWidth( aWidth ), m_CleanHeight( aHeight ), m_InternalFormat( -1 ),
-    m_TextureID( 0 ), m_Flipped( false ), m_DeallocatorFunc( 0 )  {};
+    m_TextureID( 0 ), m_Flipped( false ), m_boundTextureUnit(-1), 
+    m_DeallocatorFunc( 0 )  {};
     
     ~Obj()
     {
@@ -76,7 +76,8 @@ struct Texture::Obj {
     glm::mat4       m_textureMatrix;
     
     bool			m_DoNotDispose;
-    bool			m_Flipped;	
+    bool			m_Flipped;
+    mutable GLint   m_boundTextureUnit;
     void			(*m_DeallocatorFunc)(void *refcon);
     void			*m_DeallocatorRefcon;			
 };
@@ -213,7 +214,7 @@ void Texture::update( const unsigned char *data,GLenum format, int theWidth, int
     
     m_Obj->m_CleanWidth = m_Obj->m_Width = theWidth;
     m_Obj->m_CleanHeight = m_Obj->m_Height = theHeight;
-    m_Obj->m_Flipped = flipped;
+    setFlipped(flipped);
     
     init(data, 0, format, GL_UNSIGNED_BYTE, Format());
 }
@@ -276,6 +277,16 @@ const mat4 &Texture::getTextureMatrix() const
     return m_Obj->m_textureMatrix; 
 }
 
+const bool Texture::isBound() const
+{
+    return m_Obj->m_boundTextureUnit >= 0;
+}
+
+const GLint Texture::getBoundTextureUnit() const
+{
+    return m_Obj->m_boundTextureUnit;
+}
+    
 GLuint Texture::getId() const 
 { 
     return m_Obj->m_TextureID; 
@@ -299,7 +310,8 @@ void Texture::setFlipped( bool aFlipped )
     m_Obj->m_textureMatrix = mat4();
     
     if(aFlipped) 
-        m_Obj->m_textureMatrix[1] = vec4(1, -1, 1, 0);
+        m_Obj->m_textureMatrix[1] = vec4(0, -1.0, 0, 1);
+        //m_Obj->m_textureMatrix = glm::scale(m_Obj->m_textureMatrix, vec3(0, -1, 0));
 }
     
 void Texture::setWrapS( GLenum wrapS )
@@ -461,6 +473,8 @@ void Texture::bind( GLuint textureUnit ) const
 {
     if(!m_Obj) return;//throw TextureDataExc("Tried to bind uninitialized texture ...");
     
+    m_Obj->m_boundTextureUnit = textureUnit;
+    
 	glActiveTexture( GL_TEXTURE0 + textureUnit );
 	glBindTexture( m_Obj->m_Target, m_Obj->m_TextureID );
 	glActiveTexture( GL_TEXTURE0 );
@@ -469,6 +483,8 @@ void Texture::bind( GLuint textureUnit ) const
 void Texture::unbind( GLuint textureUnit ) const
 {
     if(!m_Obj) return;//throw TextureDataExc("Tried to unbind uninitialized texture ...");
+    
+    m_Obj->m_boundTextureUnit = -1;
     
 	glActiveTexture( GL_TEXTURE0 + textureUnit );
 	glBindTexture( m_Obj->m_Target, 0 );
