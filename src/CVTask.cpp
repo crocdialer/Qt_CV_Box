@@ -78,7 +78,7 @@ cv::Mat TaskSalience::doProcessing(const cv::Mat &inFrame)
 {
     cv::Mat downSized,outMat;
     
-    double ratio = 320 * 1. / inFrame.cols; 
+    double ratio = 240 * 1. / inFrame.cols; 
     resize(inFrame, downSized, cv::Size(0,0), ratio, ratio, INTER_NEAREST);
     m_salienceDetect.updateSalience(downSized);
     m_salienceDetect.getSalImage(m_salImg);

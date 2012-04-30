@@ -15,7 +15,15 @@ m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
 {	
 	// static shares, to have only one Gl-context for all widgets
     ms_shares.push_back(this);
-	
+    font.setPointSize(18);
+}
+
+CVWidget::CVWidget(const QGLFormat &format, QWidget *parent):
+QGLWidget(format, parent), m_vertices(NULL), m_vertexBuffer(0),
+m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
+{
+    // static shares, to have only one Gl-context for all widgets
+    ms_shares.push_back(this);
     font.setPointSize(18);
 }
 
@@ -76,7 +84,7 @@ void CVWidget::initializeGL()
 void CVWidget::paintGL()
 {	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
+	//glLoadIdentity();
 		
 	//drawing with texture
 	drawTexture();
@@ -100,13 +108,7 @@ void CVWidget::resizeGL(int newWidth, int newHeight)
 	//float aspectRatio = ( (float) newWidth / (float)(newHeight?newHeight:1) );
 	
 	glViewport(0, 0, newWidth, newHeight);
-	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	
-	glOrtho(0, 1.0, 0, 1.0, 0.0, 1.0);
-	
-	glMatrixMode(GL_MODELVIEW);
+    
 }
 
 void CVWidget::buildCanvasVBO()
@@ -181,26 +183,25 @@ void CVWidget::drawTexture()
     glm::mat4 projectionMatrix = glm::ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
     glm::mat4 modelViewMatrix;
     
-    if(m_texture){
+	m_shader.uniform("u_modelViewProjectionMatrix", 
+                     projectionMatrix * modelViewMatrix);
+    
+    GLuint positionAttribLocation = m_shader.getAttribLocation("a_position");
+    glEnableVertexAttribArray(positionAttribLocation);
+    glVertexAttribPointer(positionAttribLocation, 3, GL_FLOAT, GL_FALSE,
+                          5 * sizeof(GLfloat), BUFFER_OFFSET(2 * sizeof(GLfloat)));
+    
+    GLuint texCoordAttribLocation = m_shader.getAttribLocation("a_texCoord");
+    glEnableVertexAttribArray(texCoordAttribLocation);
+    glVertexAttribPointer(texCoordAttribLocation, 2, GL_FLOAT, GL_FALSE,
+                          5 * sizeof(GLfloat), BUFFER_OFFSET(0));
+    
+    if(m_texture)
+    {
         m_shader.uniform("u_textureMap", m_texture.getBoundTextureUnit());
-        
         m_shader.uniform("u_textureMatrix", m_texture.getTextureMatrix());
-        m_shader.uniform("u_modelViewProjectionMatrix", 
-                         projectionMatrix * modelViewMatrix);
-        
-        GLuint positionAttribLocation = m_shader.getAttribLocation("a_position");
-        glEnableVertexAttribArray(positionAttribLocation);
-        glVertexAttribPointer(positionAttribLocation, 3, GL_FLOAT, GL_FALSE,
-                              5 * sizeof(GLfloat), BUFFER_OFFSET(2 * sizeof(GLfloat)));
-        
-        GLuint texCoordAttribLocation = m_shader.getAttribLocation("a_texCoord");
-        glEnableVertexAttribArray(texCoordAttribLocation);
-        glVertexAttribPointer(texCoordAttribLocation, 2, GL_FLOAT, GL_FALSE,
-                              5 * sizeof(GLfloat), BUFFER_OFFSET(0));
-        
     }
-	
-
+    
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

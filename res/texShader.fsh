@@ -7,6 +7,7 @@
 //
 
 //#version 150 core
+#version 330
 
 uniform sampler2D   u_textureMap;
 varying vec4        v_texCoord;
@@ -14,5 +15,7 @@ varying vec4        v_texCoord;
 void main()
 {
     vec4 tex = texture2D(u_textureMap, v_texCoord.xy);
-    gl_FragColor = tex;//vec4(1.0, 0.0, 0.0, 0);
+
+    //gl_FragColor = tex * vec4(v_texCoord.x, v_texCoord.y, -v_texCoord.x, 1.0);
+    gl_FragData[0] = tex * vec4(v_texCoord.x, v_texCoord.y, -v_texCoord.x, 1.0);
 }

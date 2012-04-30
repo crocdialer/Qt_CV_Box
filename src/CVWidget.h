@@ -16,6 +16,8 @@ class CVWidget : public QGLWidget
 public:
     
     CVWidget(QWidget *parent=NULL,QGLWidget *shardWdgt=ms_shares.empty() ? NULL:ms_shares.front());
+    CVWidget(const QGLFormat &format, QWidget *parent=NULL);
+    
     virtual ~CVWidget();
 	
 	//-- QGLWidget Callbacks

@@ -310,8 +310,11 @@ void Texture::setFlipped( bool aFlipped )
     m_Obj->m_textureMatrix = mat4();
     
     if(aFlipped) 
-        m_Obj->m_textureMatrix[1] = vec4(0, -1.0, 0, 1);
-        //m_Obj->m_textureMatrix = glm::scale(m_Obj->m_textureMatrix, vec3(0, -1, 0));
+    {
+        m_Obj->m_textureMatrix[0] = vec4(-1.0,    0, 0, 1);
+        m_Obj->m_textureMatrix[1] = vec4(   0, -1.0, 0, 1);
+//        m_Obj->m_textureMatrix = glm::scale(m_Obj->m_textureMatrix, vec3(1, -1, 1));
+    }
 }
     
 void Texture::setWrapS( GLenum wrapS )

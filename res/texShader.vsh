@@ -24,7 +24,7 @@ void main()
     //float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));
                  
     v_texCoord = a_texCoord * u_textureMatrix;
-    v_texCoord += u_textureMatrix[3];
+    //v_texCoord += u_textureMatrix[3];
     
     gl_Position = u_modelViewProjectionMatrix * a_position;
 }

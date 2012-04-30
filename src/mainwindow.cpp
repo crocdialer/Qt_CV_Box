@@ -28,8 +28,14 @@ MainWindow::MainWindow(QWidget *parent)
 	
     ui->setupUi(this);
     
+    QGLFormat glFormat;
+    glFormat.setVersion( 3, 2 );
+    glFormat.setProfile( QGLFormat::CoreProfile ); // Requires >=Qt-4.8.0
+    // Multisampling
+    //glFormat.setSampleBuffers( true );
+    
 	// init imageWidget and attach a CVThread to it
-    imgWidget = new CVWidget();
+    imgWidget = new CVWidget(glFormat);
 	setCentralWidget(imgWidget);
 	imgWidget->setFocus(Qt::MouseFocusReason);
 
