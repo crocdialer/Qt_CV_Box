@@ -137,9 +137,6 @@ void Texture::init( const unsigned char *data, int unpackRowLength, GLenum dataF
         glTexParameteri( m_Obj->m_Target, GL_TEXTURE_MIN_FILTER, format.m_MinFilter );	
         glTexParameteri( m_Obj->m_Target, GL_TEXTURE_MAG_FILTER, format.m_MagFilter );
         
-        if( format.m_Mipmapping )
-            glTexParameteri( m_Obj->m_Target, GL_GENERATE_MIPMAP, GL_TRUE );
-        
         if( m_Obj->m_Target == GL_TEXTURE_2D ) 
         {
             m_Obj->mMaxU = m_Obj->mMaxV = 1.0f;
@@ -167,6 +164,8 @@ void Texture::init( const unsigned char *data, int unpackRowLength, GLenum dataF
 	glPixelStorei( GL_UNPACK_ROW_LENGTH, 0 );
 #endif	
     
+    if( format.m_Mipmapping )
+        glGenerateMipmap(m_Obj->m_Target);
 }
 
 void Texture::init( const float *data, GLint dataFormat, const Format &format )
@@ -180,9 +179,6 @@ void Texture::init( const float *data, GLint dataFormat, const Format &format )
 	glTexParameteri( m_Obj->m_Target, GL_TEXTURE_WRAP_T, format.m_WrapT );
 	glTexParameteri( m_Obj->m_Target, GL_TEXTURE_MIN_FILTER, format.m_MinFilter );	
 	glTexParameteri( m_Obj->m_Target, GL_TEXTURE_MAG_FILTER, format.m_MagFilter );
-	
-    if( format.m_Mipmapping )
-		glTexParameteri( m_Obj->m_Target, GL_GENERATE_MIPMAP, GL_TRUE );
 	
     if( m_Obj->m_Target == GL_TEXTURE_2D ) 
     {
@@ -201,6 +197,9 @@ void Texture::init( const float *data, GLint dataFormat, const Format &format )
 	}
 	else
 		glTexImage2D( m_Obj->m_Target, 0, m_Obj->m_InternalFormat, m_Obj->m_Width, m_Obj->m_Height, 0, GL_LUMINANCE, GL_FLOAT, 0 );  // init to black...
+    
+    if( format.m_Mipmapping )
+        glGenerateMipmap(m_Obj->m_Target);
 }
 
 void Texture::update( const unsigned char *data,GLenum format, int theWidth, int theHeight, bool flipped )
@@ -212,11 +211,19 @@ void Texture::update( const unsigned char *data,GLenum format, int theWidth, int
         m_Obj->m_InternalFormat = GL_RGBA;
     }
     
-    m_Obj->m_CleanWidth = m_Obj->m_Width = theWidth;
-    m_Obj->m_CleanHeight = m_Obj->m_Height = theHeight;
-    setFlipped(flipped);
-    
-    init(data, 0, format, GL_UNSIGNED_BYTE, Format());
+    if(m_Obj->m_Width == theWidth && m_Obj->m_Height == theHeight)
+    {
+        glBindTexture( m_Obj->m_Target, m_Obj->m_TextureID );
+        glTexSubImage2D( m_Obj->m_Target, 0, 0, 0, m_Obj->m_Width, m_Obj->m_Height, format, GL_UNSIGNED_BYTE, data );
+    }
+    else 
+    {
+        m_Obj->m_CleanWidth = m_Obj->m_Width = theWidth;
+        m_Obj->m_CleanHeight = m_Obj->m_Height = theHeight;
+        setFlipped(flipped);
+        
+        init(data, 0, format, GL_UNSIGNED_BYTE, Format());
+    }
 }
     
 bool Texture::dataFormatHasAlpha( GLint dataFormat )
@@ -312,8 +319,8 @@ void Texture::setFlipped( bool aFlipped )
     if(aFlipped) 
     {
         glm::mat4 flipY;
-        flipY[1] = vec4(0, -1, 0, 1);
-        flipY[3] = vec4(0, 1, 0, 1);
+        flipY[1] = vec4(0, -1, 0, 1);// invert y-coords
+        flipY[3] = vec4(0, 1, 0, 1); // [-1,0] -> [0,1]
         
         m_Obj->m_textureMatrix *= flipY;
     }
