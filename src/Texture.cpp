@@ -311,9 +311,11 @@ void Texture::setFlipped( bool aFlipped )
     
     if(aFlipped) 
     {
-        m_Obj->m_textureMatrix[0] = vec4(-1.0,    0, 0, 1);
-        m_Obj->m_textureMatrix[1] = vec4(   0, -1.0, 0, 1);
-//        m_Obj->m_textureMatrix = glm::scale(m_Obj->m_textureMatrix, vec3(1, -1, 1));
+        glm::mat4 flipY;
+        flipY[1] = vec4(0, -1, 0, 1);
+        flipY[3] = vec4(0, 1, 0, 1);
+        
+        m_Obj->m_textureMatrix *= flipY;
     }
 }
     
