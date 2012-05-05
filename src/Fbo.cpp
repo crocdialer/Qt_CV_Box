@@ -397,8 +397,8 @@ void Fbo::updateMipmaps( bool bindFirst, int attachment ) const
 	if( ! mObj->mNeedsMipmapUpdate )
 		return;
 	
-	if( bindFirst ) {
-		//SaveTextureBindState state( getTarget() );
+	if( bindFirst ) 
+    {
 		mObj->mColorTextures[attachment].bind();
 		GL_SUFFIX(glGenerateMipmap)( getTarget() );
 	}

@@ -55,6 +55,7 @@ private:
  	//-- OpenGL VBO for drawing the canvas
     GLfloat *m_vertices;
     GLuint m_vertexBuffer ;
+    GLuint m_vertexArray ;
 	
 	bool m_detectFaces;
 	

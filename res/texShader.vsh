@@ -12,7 +12,6 @@ uniform mat4 u_modelViewProjectionMatrix;
 uniform mat4 u_textureMatrix;
 //uniform mat3 u_normalMatrix;
 
-//in vec4 a_position;
 attribute vec4 a_position;
 attribute vec3 a_normal;
 attribute vec4 a_texCoord;
@@ -25,7 +24,6 @@ void main()
     //float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));
                  
     v_texCoord =  u_textureMatrix * a_texCoord;
-    //v_texCoord += u_textureMatrix[3];
     
     gl_Position = u_modelViewProjectionMatrix * a_position;
 }

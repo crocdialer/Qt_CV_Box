@@ -10,7 +10,7 @@ list<QGLWidget*> CVWidget::ms_shares;
 
 
 CVWidget::CVWidget(QWidget *prnt,QGLWidget *shr):QGLWidget(prnt,shr),
-m_vertices(NULL), m_vertexBuffer(0),
+m_vertices(NULL), m_vertexBuffer(0),m_vertexArray(0),
 m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
 {	
 	// static shares, to have only one Gl-context for all widgets
@@ -20,6 +20,7 @@ m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
 
 CVWidget::CVWidget(const QGLFormat &format, QWidget *parent):
 QGLWidget(format, parent), m_vertices(NULL), m_vertexBuffer(0),
+m_vertexArray(0),
 m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
 {
     // static shares, to have only one Gl-context for all widgets
@@ -128,6 +129,14 @@ void CVWidget::buildCanvasVBO()
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(array), array, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+//    // create VAO to bundle all VBOs
+//    glGenVertexArraysAPPLE(1, &m_vertexArray);
+//    glBindVertexArrayAPPLE(m_vertexArray);
+//    
+//    
+//    glBindVertexArrayAPPLE(0);
+    
 }
 
 void CVWidget::mousePressEvent(QMouseEvent *event)

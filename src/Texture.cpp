@@ -23,7 +23,7 @@
 #include "Texture.h"
 
 using namespace std;
-using namespace glm;
+//using namespace glm;
 
 namespace gl {
     
@@ -274,12 +274,12 @@ void Texture::setDoNotDispose( bool aDoNotDispose )
     m_Obj->m_DoNotDispose = aDoNotDispose; 
 }
 
-void Texture::setTextureMatrix( const mat4 &theMatrix )
+    void Texture::setTextureMatrix( const glm::mat4 &theMatrix )
 {
     m_Obj->m_textureMatrix = theMatrix;
 }
     
-const mat4 &Texture::getTextureMatrix() const 
+const glm::mat4 &Texture::getTextureMatrix() const 
 { 
     return m_Obj->m_textureMatrix; 
 }
@@ -314,13 +314,13 @@ bool Texture::isFlipped() const
 void Texture::setFlipped( bool aFlipped ) 
 { 
     m_Obj->m_Flipped = aFlipped;
-    m_Obj->m_textureMatrix = mat4();
+    m_Obj->m_textureMatrix = glm::mat4();
     
     if(aFlipped) 
     {
         glm::mat4 flipY;
-        flipY[1] = vec4(0, -1, 0, 1);// invert y-coords
-        flipY[3] = vec4(0, 1, 0, 1); // [-1,0] -> [0,1]
+        flipY[1] = glm::vec4(0, -1, 0, 1);// invert y-coords
+        flipY[3] = glm::vec4(0, 1, 0, 1); // [-1,0] -> [0,1]
         
         m_Obj->m_textureMatrix *= flipY;
     }

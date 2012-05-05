@@ -32,7 +32,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 using boost::shared_ptr;
-//using std::shared_ptr
 
 namespace gl 
 {

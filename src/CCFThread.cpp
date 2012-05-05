@@ -15,9 +15,9 @@ CCFThread::CCFThread():CVThread()
 	m_plainHOG.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
     
 //    addProcessingTask( new TaskXRay() );
-//    addProcessingTask( new TaskThermal() );
+    addProcessingTask( new TaskThermal() );
 //    addProcessingTask( new TaskThresh() );
-    addProcessingTask(new TaskSalience());
+//    addProcessingTask(new TaskSalience());
     
 }
 
