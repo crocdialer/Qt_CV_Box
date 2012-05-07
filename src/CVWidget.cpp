@@ -1,6 +1,7 @@
 #include "CVWidget.h"
 #include "mainwindow.h"
 
+#include <OpenGL/gl3.h>
 
 // opencv C++ interface
 using namespace cv;
@@ -8,8 +9,22 @@ using namespace std;
 
 list<QGLWidget*> CVWidget::ms_shares;
 
+void* select_3_2_mac_visual(GDHandle handle);
 
-CVWidget::CVWidget(QWidget *prnt,QGLWidget *shr):QGLWidget(prnt,shr),
+struct Core3_2_context : public QGLContext
+{
+    Core3_2_context(const QGLFormat& format, QPaintDevice* device) : QGLContext(format,device) {}
+    Core3_2_context(const QGLFormat& format) : QGLContext(format) {}
+    
+#ifdef __APPLE__
+    virtual void* chooseMacVisual(GDHandle handle)
+    {
+        return select_3_2_mac_visual(handle);
+    }
+#endif
+};
+
+CVWidget::CVWidget(QWidget *prnt,QGLWidget *shr):QGLWidget(new Core3_2_context(QGLFormat::defaultFormat())),
 m_vertices(NULL), m_vertexBuffer(0),m_vertexArray(0),
 m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
 {	
@@ -26,6 +41,7 @@ m_detectFaces(0),m_drawFPS(false),m_framesDrawn(0),m_lastFps(0)
     // static shares, to have only one Gl-context for all widgets
     ms_shares.push_back(this);
     font.setPointSize(18);
+    
 }
 
 CVWidget::~CVWidget()
@@ -59,6 +75,10 @@ void CVWidget::setCVThread(const CVThreadPtr& cvt)
 
 void CVWidget::initializeGL()
 {	
+    // version
+    printf("OpenGL: %s\n", glGetString(GL_VERSION));
+    printf("GLSL: %s\n",glGetString(GL_SHADING_LANGUAGE_VERSION));
+    
 	if(!doubleBuffer())
         throw runtime_error("no doublebuffering available ...");
 	
@@ -96,7 +116,7 @@ void CVWidget::paintGL()
 		sprintf(fpsString, "fps: %d \n",m_lastFps);
 		
 		//render fps
-		renderText(10, 20, fpsString, font);
+		//renderText(10, 20, fpsString, font);
 		
 		// 1 more frame
 		m_framesDrawn++;
@@ -131,11 +151,23 @@ void CVWidget::buildCanvasVBO()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
 //    // create VAO to bundle all VBOs
-//    glGenVertexArraysAPPLE(1, &m_vertexArray);
-//    glBindVertexArrayAPPLE(m_vertexArray);
-//    
-//    
-//    glBindVertexArrayAPPLE(0);
+    glGenVertexArrays(1, &m_vertexArray);
+    glBindVertexArray(m_vertexArray);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    
+    GLuint positionAttribLocation = m_shader.getAttribLocation("a_position");
+    glEnableVertexAttribArray(positionAttribLocation);
+    glVertexAttribPointer(positionAttribLocation, 3, GL_FLOAT, GL_FALSE,
+                          5 * sizeof(GLfloat), BUFFER_OFFSET(2 * sizeof(GLfloat)));
+    
+    GLuint texCoordAttribLocation = m_shader.getAttribLocation("a_texCoord");
+    glEnableVertexAttribArray(texCoordAttribLocation);
+    glVertexAttribPointer(texCoordAttribLocation, 2, GL_FLOAT, GL_FALSE,
+                          5 * sizeof(GLfloat), BUFFER_OFFSET(0));
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+    glBindVertexArrayAPPLE(0);
     
 }
 
@@ -187,23 +219,17 @@ void CVWidget::drawTexture()
     gl::scoped_bind<gl::Texture> texBind(m_texture);
     gl::scoped_bind<gl::Shader> shaderBind(m_shader);
     
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-    
     glm::mat4 projectionMatrix = glm::ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
     glm::mat4 modelViewMatrix;
     
 	m_shader.uniform("u_modelViewProjectionMatrix", 
                      projectionMatrix * modelViewMatrix);
     
-    GLuint positionAttribLocation = m_shader.getAttribLocation("a_position");
-    glEnableVertexAttribArray(positionAttribLocation);
-    glVertexAttribPointer(positionAttribLocation, 3, GL_FLOAT, GL_FALSE,
-                          5 * sizeof(GLfloat), BUFFER_OFFSET(2 * sizeof(GLfloat)));
+    //fragData
+    m_shader.bindFragDataLocation("fragData");
     
-    GLuint texCoordAttribLocation = m_shader.getAttribLocation("a_texCoord");
-    glEnableVertexAttribArray(texCoordAttribLocation);
-    glVertexAttribPointer(texCoordAttribLocation, 2, GL_FLOAT, GL_FALSE,
-                          5 * sizeof(GLfloat), BUFFER_OFFSET(0));
+    //TODO: bind VAO
+    glBindVertexArray(m_vertexArray);
     
     if(m_texture)
     {
@@ -212,7 +238,6 @@ void CVWidget::drawTexture()
     }
     
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void CVWidget::updateImage()

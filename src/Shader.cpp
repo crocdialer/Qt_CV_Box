@@ -63,16 +63,16 @@ Shader::Shader(const char *vertexShader, const char *fragmentShader,
 		loadShader( fragmentShader, GL_FRAGMENT_SHADER );
     
 	if( geometryShader ) {
-		loadShader( geometryShader, GL_GEOMETRY_SHADER_EXT );
+		loadShader( geometryShader, GL_GEOMETRY_SHADER );
         
-        glProgramParameteriEXT(m_Obj->m_Handle, GL_GEOMETRY_INPUT_TYPE_EXT, geometryInputType);
-        glProgramParameteriEXT(m_Obj->m_Handle, GL_GEOMETRY_OUTPUT_TYPE_EXT, geometryOutputType);
-        glProgramParameteriEXT(m_Obj->m_Handle, GL_GEOMETRY_VERTICES_OUT_EXT, geometryOutputVertices);
+//        glProgramParameteriEXT(m_Obj->m_Handle, GL_GEOMETRY_INPUT_TYPE_EXT, geometryInputType);
+//        glProgramParameteriEXT(m_Obj->m_Handle, GL_GEOMETRY_OUTPUT_TYPE_EXT, geometryOutputType);
+//        glProgramParameteriEXT(m_Obj->m_Handle, GL_GEOMETRY_VERTICES_OUT_EXT, geometryOutputVertices);
     }
     
 	link();
 }
-    
+
 void Shader::loadFromFile(const std::string &vertPath, const std::string &fragPath)
 {
     if(!m_Obj)
@@ -242,6 +242,11 @@ void Shader::uniform( const std::string &name, const glm::mat4 *theArray, int co
     GLint loc = getUniformLocation( name );
     glUniformMatrix4fv( loc, count, ( transpose ) ? GL_TRUE : GL_FALSE, glm::value_ptr(theArray[0]) );
 }
+
+void Shader::bindFragDataLocation(const std::string &fragLoc)
+{
+    glBindFragDataLocation(m_Obj->m_Handle, 0, fragLoc.c_str());
+}
     
 GLint Shader::getUniformLocation( const std::string &name )
 {
@@ -269,7 +274,7 @@ ShaderCompileExc::ShaderCompileExc( const std::string &log, GLint aShaderType ) 
 		strncpy( m_Message, "VERTEX: ", 1000 );
 	else if( m_ShaderType == GL_FRAGMENT_SHADER )
 		strncpy( m_Message, "FRAGMENT: ", 1000 );
-	else if( m_ShaderType == GL_GEOMETRY_SHADER_EXT )
+	else if( m_ShaderType == GL_GEOMETRY_SHADER )
 		strncpy( m_Message, "GEOMETRY: ", 1000 );
 	else
 		strncpy( m_Message, "UNKNOWN: ", 1000 );

@@ -26,7 +26,7 @@
 #include <exception>
 
 
-#include <OpenGL/gl.h>
+#include <OpenGL/gl3.h>
 #include <boost/shared_ptr.hpp>
 
 #include <boost/static_assert.hpp>
@@ -74,6 +74,8 @@ class Shader {
     void uniform(   const std::string &name, const glm::mat4 *theArray,
                     int count, bool transpose );
 
+    void bindFragDataLocation(const std::string &fragLoc);
+    
 	GLint getUniformLocation( const std::string &name );
 	GLint getAttribLocation( const std::string &name );
 

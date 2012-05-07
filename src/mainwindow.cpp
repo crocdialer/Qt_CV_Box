@@ -22,42 +22,22 @@ bool overlay = false;
 MainWindow::MainWindow(QWidget *parent)
 :	QMainWindow(parent),ui(new Ui::mainWindow),m_tagging(false),m_statusMsg(GREETINGS_MSG)
 {
-#ifdef __APPLE__
-	//chdir("../..");
-#endif
 	
     ui->setupUi(this);
     
-    QGLFormat glFormat;
-    glFormat.setVersion( 3, 2 );
-    glFormat.setProfile( QGLFormat::CoreProfile ); // Requires >=Qt-4.8.0
-    // Multisampling
-    //glFormat.setSampleBuffers( true );
-    
 	// init imageWidget and attach a CVThread to it
-    imgWidget = new CVWidget(glFormat);
+    imgWidget = new CVWidget();
 	setCentralWidget(imgWidget);
 	imgWidget->setFocus(Qt::MouseFocusReason);
 
 	//create new CVThread and pass it to our imgWidget
     m_cvThread = CVThreadPtr(new CCFThread());
     
-//    shared_ptr<CCFThread> bla = m_cvThread;
-    
 	imgWidget->setCVThread(m_cvThread);
 	imgWidget->setDrawFPS(true);
-    
-    /*
-    CVWidget* myWid = new CVWidget();
-	this->layout()->addWidget(myWid);
-    myWid->setCVThread(m_cvThread);
-    myWid->setWidgetType(CVWidget::WIDGET_DEPTH);
-    */
-    
+
 	//test images
 	m_cvThread->openImage("./test.jpg");
-    
-	//imgWidget->getCVThread()->loadFrameFromIpCamera();
 	
 	m_sequenceDialog = new SetSequenceDialog(this) ;
 	m_jumpToDialog = new JumpToDialog(this) ;

@@ -14,6 +14,13 @@ int main(int argc, char *argv[])
 	getcwd(buf, 512);
 	printf("current dir: %s\n",buf);
 	
+    QGLFormat fmt;
+    fmt.setProfile(QGLFormat::CoreProfile);
+    fmt.setVersion(3,2);
+    fmt.setSampleBuffers(true);
+    fmt.setSamples(4);
+    QGLFormat::setDefaultFormat(fmt);
+    
     QApplication a(argc, argv);
     MainWindow w;
 

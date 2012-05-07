@@ -6,17 +6,17 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-//#version 150 core
+#version 150 core
 
 uniform mat4 u_modelViewProjectionMatrix;
 uniform mat4 u_textureMatrix;
 //uniform mat3 u_normalMatrix;
 
-attribute vec4 a_position;
-attribute vec3 a_normal;
-attribute vec4 a_texCoord;
+in vec4 a_position;
+in vec3 a_normal;
+in vec4 a_texCoord;
 
-varying vec4 v_texCoord;
+out vec4 v_texCoord;
 
 void main()
 {
