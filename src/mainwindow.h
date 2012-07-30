@@ -77,11 +77,9 @@ public:
 	
     void activateUSBCamera(bool b);
     void activateIPCamera(bool b);
-    void activateKinect(bool b);
 
     void toggleUSBCamera(){activateUSBCamera(!m_cvThread->isUSBCameraActive());};
     void toggleIPCamera(){activateIPCamera(!m_cvThread->isIPCameraActive());};
-    void toggleKinect(){activateKinect(!m_cvThread->isKinectActive());};
 
 	void togglePlayPause();
     

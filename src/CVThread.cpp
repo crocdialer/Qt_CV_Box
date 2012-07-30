@@ -16,7 +16,7 @@ using namespace cv;
 //using namespace boost;
 
 CVThread::CVThread():m_streamType(NO_STREAM),m_currentFileIndex(0),m_sequenceStep(1),
-stopped(true),m_kinectDevice(NULL),m_kinectUseIR(false),m_captureFPS(25.f)
+stopped(true),m_captureFPS(25.f)
 {	
     printf("CVThread -> OpenCV-Version: %s\n\n",CV_VERSION);
 	
@@ -269,41 +269,6 @@ void CVThread::streamIPCamera(bool b)
 	
 }
 
-void CVThread::streamKinect(bool b)
-{
-    if(b)
-    {
-        m_freenect = boost::shared_ptr<Freenect::Freenect>( new Freenect::Freenect());
-        m_kinectDevice = &(m_freenect->createDevice<KinectDevice>(0));
-        
-        
-        //setKinectUseIR(m_kinectUseIR);
-        m_kinectDevice->startVideo();
-        m_kinectDevice->startDepth();
-        
-        m_streamType = STREAM_KINECT;
-        this->start();
-    }
-    else
-    {
-        
-        m_freenect.reset();
-        m_kinectDevice=NULL;
-        
-        this->stop();
-        m_streamType = NO_STREAM;
-    }
-}
-
-void CVThread::setKinectUseIR(bool b)
-{
-    m_kinectUseIR = b;
-    
-    if(m_kinectDevice)
-        m_kinectDevice->setVideoFormat(b ?  FREENECT_VIDEO_IR_8BIT : 
-                                            FREENECT_VIDEO_RGB); 
-}
-
 bool CVThread::grabNextFrame()
 {	
 	bool success = true ;
@@ -371,13 +336,6 @@ bool CVThread::grabNextFrame()
 				loadFrameFromIpCamera();
 			else
 				m_frames.m_inFrame = m_bufferThread->grabNextFrame();
-			break ;
-
-        case STREAM_KINECT:
-			
-			m_kinectDevice->getVideo(m_frames.m_inFrame,m_kinectUseIR);
-            m_kinectDevice->getDepth(m_frames.m_depthMap,m_frames.m_inFrame);
-            
 			break ;
             
 		case NO_STREAM:

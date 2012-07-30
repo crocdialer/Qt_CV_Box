@@ -11,7 +11,6 @@ const char* GREETINGS_MSG = "welcome to Persona Boy application - load a sequenc
 
 const char* IPCAM_MSG = "streaming from network-camera" ;
 const char* USBCAM_MSG = "streaming from USB-camera" ;
-const char* KINECT_MSG = "streaming from Kinect" ;
 
 const char* SCAN_MSG = "Scanning folders..." ;
 
@@ -85,9 +84,6 @@ MainWindow::MainWindow(QWidget *parent)
 	
     // start streaming from network cam
 	connect(ui->actionNetwork_camera, SIGNAL(triggered()), this, SLOT(toggleIPCamera()));
-    
-    // start streaming from kinect
-	connect(ui->actionKinect, SIGNAL(triggered()), this, SLOT(toggleKinect()));
     
 	// toggle fullscreen from menu
 	connect(ui->actionFullscreen, SIGNAL(triggered()), this, SLOT(toggleFullscreen()));
@@ -277,7 +273,6 @@ void MainWindow::activateUSBCamera(bool b)
 	if(b)
 	{
         activateIPCamera(false);
-        activateKinect(false);
         
 		m_stopAction->setText("stop");
 		
@@ -303,7 +298,6 @@ void MainWindow::activateIPCamera(bool b)
 	if(b)
 	{
         activateUSBCamera(false);
-        activateKinect(false);
         
 		m_stopAction->setText("stop");
 		
@@ -317,32 +311,6 @@ void MainWindow::activateIPCamera(bool b)
 		ui->actionNetwork_camera->setText("start IP-camera ...");
 	}
 }
-
-void MainWindow::activateKinect(bool b)
-{
-	//bool camRunning = m_cvThread->isKinectActive();
-	
-    if( b || m_cvThread->isKinectActive())
-        m_cvThread->streamKinect(b);
-    
-	if(b)
-	{
-        activateUSBCamera(false);
-        activateIPCamera(false);
-        
-		m_stopAction->setText("stop");
-		
-		ui->actionKinect->setText("stop Kinect ...");
-		
-		m_statusMsg = KINECT_MSG;
-	}
-	else 
-	{
-		statusBar()->showMessage("camera turned off");
-		ui->actionKinect->setText("start Kinect ...");
-	}
-}
-
 
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
@@ -403,12 +371,6 @@ void  MainWindow::keyReleaseEvent(QKeyEvent* event)
 			
             toggleFullscreen();
 			setFocus();
-            break;
-            
-        case Qt::Key_I :
-			
-            m_cvThread->setKinectUseIR(!m_cvThread->isKinectUseIR());
-            
             break;
 			
 		case Qt::Key_Space :

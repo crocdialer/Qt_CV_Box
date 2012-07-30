@@ -19,10 +19,6 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${OpenCV_LIBS})
 #####
 
-##### FREENECT
-set(LIBS ${LIBS} freenect)
-#####
-
 ##### QT stuff
 find_package(Qt4 REQUIRED)
 SET(QT_USE_QTOPENGL TRUE)

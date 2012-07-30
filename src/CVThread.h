@@ -22,7 +22,6 @@
 #include "boost/shared_ptr.hpp"
 #include "tbb/tbb.h"
 
-#include "KinectDevice.h"
 
 using namespace cv ;
 
@@ -31,7 +30,7 @@ class CVThread : public QThread
     Q_OBJECT
 	
 public:
-	enum CVStreamType{NO_STREAM, STREAM_FILELIST,STREAM_IP_CAM, STREAM_CAPTURE,STREAM_KINECT, STREAM_VIDEOFILE};
+	enum CVStreamType{NO_STREAM, STREAM_FILELIST,STREAM_IP_CAM, STREAM_CAPTURE, STREAM_VIDEOFILE};
 	
     CVThread();
     virtual ~CVThread();
@@ -58,7 +57,6 @@ public:
 	void streamVideo(const std::string& path2Video);
 	void streamUSBCamera(bool b,int camId = 0);
 	void streamIPCamera(bool b);
-    void streamKinect(bool b);
 	
 	bool saveCurrentFrame(const std::string& savePath);
     
@@ -72,14 +70,10 @@ public:
     
 	const std::vector<std::string>& getSeq(){ return m_filesToStream;};
 	
-	bool isCameraActive(){return isUSBCameraActive() || isIPCameraActive() ||
-        isKinectActive();};
+	bool isCameraActive(){return isUSBCameraActive() || isIPCameraActive();};
 	
 	bool isUSBCameraActive() const {return m_capture.isOpened();} ;
 	bool isIPCameraActive() const {return m_ipCameraActive ;} ;
-    bool isKinectActive() const {return m_freenect.use_count() > 0 ;};
-    void setKinectUseIR(bool b);
-    bool isKinectUseIR(){return m_kinectUseIR;};
 	
 	void setImage(const cv::Mat& img);
 	const cv::Mat& getImage() const;
@@ -144,11 +138,6 @@ private:
     FrameBundle m_frames;
     
 	VideoCapture m_capture ;
-	
-    // Kinect
-    boost::shared_ptr<Freenect::Freenect> m_freenect;
-    KinectDevice* m_kinectDevice;
-    bool m_kinectUseIR;
     
     // Buffering frames (eg. from image-seuquence or ip-cam)
 	CVBufferThread* m_bufferThread;
