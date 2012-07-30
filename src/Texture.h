@@ -22,7 +22,12 @@
 
 #pragma once
 
-#include <OpenGL/gl.h>
+#ifdef __APPLE__
+    #include <OpenGL/gl.h>
+#else
+    #include <GL/gl.h>
+#endif
+
 #include <boost/shared_ptr.hpp>
 
 #include <boost/static_assert.hpp>
